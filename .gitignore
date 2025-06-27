@@ -1,0 +1,108 @@
+# =============== #
+# Unity Generated #
+# =============== #
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+MemoryCaptures/
+.sysinfo/
+
+# Crash logs
+sysinfo.txt
+
+# ============ #
+# OS Specific  #
+# ============ #
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# =============== #
+# Rider / VS Code #
+# =============== #
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.user
+*.suo
+*.unityproj
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.opendb
+
+# ============== #
+# Auto Backups   #
+# ============== #
+*.bak
+*.old
+*.tmp
+
+# =========== #
+# Build Files #
+# =========== #
+*.apk
+*.aab
+*.xcworkspace/
+*.xcuserdata/
+*.buildconfig
+
+# ============ #
+# Cache Files  #
+# ============ #
+*.stackdump
+*.log
+*.vsconfig
+*.vs/
+
+# =============== #
+# Unity Collab    #
+# =============== #
+.collabignore
+.collab/
+
+# ========== #
+# JetBrains  #
+# ========== #
+*.sln.iml
+*.idea/
+
+# ============== #
+# Exports        #
+# ============== #
+*.unitypackage
+
+# ================ #
+# Other Unity Dev  #
+# ================ #
+/Builds/
+/ExportedObj/
+/obj/
+/*.apk
+*.apk.meta
+
+# ============ #
+# Cloud Builds #
+# ============ #
+.cloud/
+
+# =============== #
+# Addressables    #
+# =============== #
+/Assets/AddressableAssetsData/*/AssetGroups/*.bin
+
+# Uncomment if using Plastic SCM
+# Ignore Plastic SCM workspace
+# .plastic/
+# Ignore Plastic SCM metadata
+# *.plastic
+
