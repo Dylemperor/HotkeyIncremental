@@ -50,4 +50,28 @@ public class CurrencyManager : MonoBehaviour
     {
         return allLetters.ContainsKey(letter) && allLetters[letter].isUnlocked;
     }
+    
+    // Method to unlock the next letter
+    public string UnlockNextLetter(string currentLetter)
+    {
+        if (string.IsNullOrEmpty(currentLetter) || currentLetter.Length != 1)
+            return null;
+            
+        char currentChar = currentLetter[0];
+        if (currentChar < 'A' || currentChar >= 'Z')
+            return null; // Can't unlock beyond Z
+            
+        string nextLetter = ((char)(currentChar + 1)).ToString();
+        
+        if (allLetters.ContainsKey(nextLetter))
+        {
+            if (!allLetters[nextLetter].isUnlocked)
+            {
+                allLetters[nextLetter].isUnlocked = true;
+                return nextLetter;
+            }
+        }
+        
+        return null;
+    }
 }

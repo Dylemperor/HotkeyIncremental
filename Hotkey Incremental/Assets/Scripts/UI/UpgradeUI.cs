@@ -51,9 +51,22 @@ public class UpgradeUI : MonoBehaviour
             }
             if (i < upgradeButtons.Length && upgradeButtons[i] != null)
             {
-                UpdateUpgradeButton(upgradeButtons[i], upgrade);
+                UpdateUpgradeButton(upgradeButtons[i], upgrade, upgradeNames[i]);
             }
         }
+    }
+    
+    private string GetNextLetter(string currentLetter)
+    {
+        if (string.IsNullOrEmpty(currentLetter) || currentLetter.Length == 0)
+            return null;
+        
+        char currentChar = currentLetter[0];
+        if (currentChar >= 'A' && currentChar < 'Z')
+        {
+            return ((char)(currentChar + 1)).ToString();
+        }
+        return null; // Z has no next letter
     }
     
     private void UpdateUpgradeText(TMP_Text text, string upgradeName, UpgradeData upgradeData)
@@ -66,16 +79,40 @@ public class UpgradeUI : MonoBehaviour
             // Make the upgrade names more descriptive
             if (upgradeName == "nextLetterBaseProduction")
             {
-                displayName = "Next Letter Base Production";
+                string nextLetter = GetNextLetter(currentLetter);
+                if (nextLetter != null)
+                {
+                    displayName = $"{nextLetter} Base Production";
+                }
+                else
+                {
+                    displayName = "Next Letter Base Production (Max)";
+                }
                 effectDescription = upgradeData.effect.ToString("F1") + "/s";
             }
             else if (upgradeName == "nextLetterMulti")
             {
-                displayName = "Next Letter Multiplier";
+                string nextLetter = GetNextLetter(currentLetter);
+                if (nextLetter != null)
+                {
+                    displayName = $"{nextLetter} Multiplier";
+                }
+                else
+                {
+                    displayName = "Next Letter Multiplier (Max)";
+                }
             }
             else if (upgradeName == "nextLetterExponent")
             {
-                displayName = "Next Letter Power Multiplier";
+                string nextLetter = GetNextLetter(currentLetter);
+                if (nextLetter != null)
+                {
+                    displayName = $"{nextLetter} Power Multiplier";
+                }
+                else
+                {
+                    displayName = "Next Letter Power Multiplier (Max)";
+                }
             }
             else if (upgradeName == "Exponent")
             {
@@ -90,12 +127,119 @@ public class UpgradeUI : MonoBehaviour
         }
     }
     
-    private void UpdateUpgradeButton(Button button, UpgradeData upgradeData)
+    private void UpdateUpgradeButton(Button button, UpgradeData upgradeData, string upgradeName)
     {
         if (button != null)
         {
             var currencyData = currencyManager.allLetters[currentLetter];
-            button.interactable = currencyData.amount >= upgradeData.cost;
+            bool canAfford = currencyData.amount >= upgradeData.cost;
+            
+            // Check if this is a next-letter upgrade
+            bool isNextLetter = upgradeName == "nextLetterBaseProduction" || 
+                                upgradeName == "nextLetterMulti" || 
+                                upgradeName == "nextLetterExponent";
+            bool isAtMaxLetter = currentLetter == "Z";
+            
+            // Disable button if it's a next-letter upgrade and we're at Z
+            if (isNextLetter && isAtMaxLetter)
+            {
+                button.interactable = false;
+            }
+            else
+            {
+                // Always keep button interactable so it's clickable
+                button.interactable = true;
+            }
+            
+            // If disabled (at max letter), use disabled color
+            bool isDisabled = isNextLetter && isAtMaxLetter;
+            
+            Color targetColor;
+            if (isDisabled)
+            {
+                // Fully disabled: very dim grey
+                targetColor = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+            }
+            else if (canAfford)
+            {
+                // Light up: full opacity and brighter color
+                targetColor = new Color(0.8f, 0.8f, 0.8f, 1f); // Mostly Full white = full brightness
+            }
+            else
+            {
+                // Slightly greyed out: reduced opacity and dimmed
+                targetColor = new Color(0.5f, 0.5f, 0.5f, 0.6f); // Grey with reduced opacity
+            }
+            
+            // Get the button's image component to change visual appearance
+            var buttonImage = button.GetComponent<UnityEngine.UI.Image>();
+            if (buttonImage != null)
+            {
+                buttonImage.color = targetColor;
+            }
+            else
+            {
+                // If no Image component, try to find it in children
+                buttonImage = button.GetComponentInChildren<UnityEngine.UI.Image>();
+                if (buttonImage != null)
+                {
+                    buttonImage.color = targetColor;
+                }
+            }
+            
+            // Update all child image components consistently
+            var childImages = button.GetComponentsInChildren<UnityEngine.UI.Image>();
+            foreach (var childImage in childImages)
+            {
+                // Skip if it's the same as the button's main image we already handled
+                if (childImage == buttonImage) continue;
+                
+                childImage.color = targetColor;
+            }
+            
+            // Update text color in child text components
+            var textComponents = button.GetComponentsInChildren<TMP_Text>();
+            foreach (var text in textComponents)
+            {
+                if (isDisabled)
+                {
+                    text.color = new Color(0.5f, 0.5f, 0.5f, 0.7f); // Dim grey for disabled
+                }
+                else if (canAfford)
+                {
+                    text.color = Color.white;
+                }
+                else
+                {
+                    text.color = new Color(0.85f, 0.85f, 0.85f, 1f); // Slightly lighter grey for text readability
+                }
+            }
+            
+            // Also update the button's color block to affect default button states
+            var colors = button.colors;
+            if (isDisabled)
+            {
+                colors.normalColor = new Color(0.3f, 0.3f, 0.3f, 0.4f); // Fully disabled
+                colors.highlightedColor = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+                colors.pressedColor = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+                colors.selectedColor = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+                colors.disabledColor = new Color(0.3f, 0.3f, 0.3f, 0.4f);
+            }
+            else if (canAfford)
+            {
+                colors.normalColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+                colors.highlightedColor = new Color(0.9f, 0.9f, 0.9f, 1f);
+                colors.pressedColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+                colors.selectedColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+            }
+            else
+            {
+                colors.normalColor = new Color(0.6f, 0.6f, 0.6f, 0.8f); // Greyed out
+                colors.highlightedColor = new Color(0.7f, 0.7f, 0.7f, 0.9f);
+                colors.pressedColor = new Color(0.5f, 0.5f, 0.5f, 0.7f);
+                colors.selectedColor = new Color(0.6f, 0.6f, 0.6f, 0.8f);
+            }
+            button.colors = colors;
         }
     }
     
@@ -117,6 +261,15 @@ public class UpgradeUI : MonoBehaviour
         // Try to purchase each upgrade as many times as possible
         foreach (string upgradeName in upgradeNames)
         {
+            // Skip next-letter upgrades if we're at Z
+            bool isNextLetter = upgradeName == "nextLetterBaseProduction" || 
+                                upgradeName == "nextLetterMulti" || 
+                                upgradeName == "nextLetterExponent";
+            if (isNextLetter && currentLetter == "Z")
+            {
+                continue; // Skip next-letter upgrades when at max letter
+            }
+            
             if (currencyData.upgrades.ContainsKey(upgradeName))
             {
                 var upgrade = currencyData.upgrades[upgradeName];
@@ -184,6 +337,16 @@ public class UpgradeUI : MonoBehaviour
     {
         if (currencyManager.allLetters.ContainsKey(currentLetter))
         {
+            // Prevent purchasing next-letter upgrades when at Z
+            bool isNextLetter = upgradeName == "nextLetterBaseProduction" || 
+                                upgradeName == "nextLetterMulti" || 
+                                upgradeName == "nextLetterExponent";
+            if (isNextLetter && currentLetter == "Z")
+            {
+                Debug.Log($"Cannot purchase {upgradeName} - already at maximum letter (Z)");
+                return;
+            }
+            
             var currencyData = currencyManager.allLetters[currentLetter];
             if (currencyData.upgrades.ContainsKey(upgradeName))
             {
