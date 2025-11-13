@@ -20,6 +20,23 @@ public class UpgradeUI : MonoBehaviour
         "nextLetterExponent"
     };
     
+    // Purchase order for MaxAllUpgrades - change this array to change the order
+    // Options: "BaseProduction", "Multiplier", "Exponent", 
+    //          "nextLetterBaseProduction", "nextLetterMulti", "nextLetterExponent"
+    // Set to null to use dynamic ordering (cheapest first)
+    private string[] purchaseOrder = {
+
+        "nextLetterExponent",
+        "nextLetterMulti",
+        "nextLetterBaseProduction",
+        "Exponent",
+        "Multiplier",
+        "BaseProduction"
+    };
+    
+    // Set to true to order by cheapest first, false to use purchaseOrder array
+    public bool useCheapestFirstOrder = false;
+    
     private void Start()
     {
         RefreshUpgradeUI();
@@ -258,8 +275,22 @@ public class UpgradeUI : MonoBehaviour
         bool purchasedAny = false;
         int totalPurchased = 0;
         
-        // Try to purchase each upgrade as many times as possible
-        foreach (string upgradeName in upgradeNames)
+        // Determine which upgrades to purchase and in what order
+        List<string> upgradesToPurchase = new List<string>();
+        
+        if (useCheapestFirstOrder)
+        {
+            // Dynamic ordering: sort by cost (cheapest first)
+            upgradesToPurchase = GetUpgradesOrderedByCost(currencyData);
+        }
+        else
+        {
+            // Use the predefined purchase order
+            upgradesToPurchase = new List<string>(purchaseOrder);
+        }
+        
+        // Try to purchase each upgrade as many times as possible in the specified order
+        foreach (string upgradeName in upgradesToPurchase)
         {
             // Skip next-letter upgrades if we're at Z
             bool isNextLetter = upgradeName == "nextLetterBaseProduction" || 
@@ -362,6 +393,41 @@ public class UpgradeUI : MonoBehaviour
                 }
             }
         }
+    }
+    
+    // Method to get upgrades ordered by cost (cheapest first)
+    private List<string> GetUpgradesOrderedByCost(CurrencyData currencyData)
+    {
+        List<(string name, double cost)> upgradeCosts = new List<(string, double)>();
+        
+        foreach (string upgradeName in upgradeNames)
+        {
+            // Skip next-letter upgrades if we're at Z
+            bool isNextLetter = upgradeName == "nextLetterBaseProduction" || 
+                                upgradeName == "nextLetterMulti" || 
+                                upgradeName == "nextLetterExponent";
+            if (isNextLetter && currentLetter == "Z")
+            {
+                continue;
+            }
+            
+            if (currencyData.upgrades.ContainsKey(upgradeName))
+            {
+                upgradeCosts.Add((upgradeName, currencyData.upgrades[upgradeName].cost));
+            }
+        }
+        
+        // Sort by cost (cheapest first)
+        upgradeCosts.Sort((a, b) => a.cost.CompareTo(b.cost));
+        
+        // Return just the names in order
+        List<string> orderedNames = new List<string>();
+        foreach (var (name, cost) in upgradeCosts)
+        {
+            orderedNames.Add(name);
+        }
+        
+        return orderedNames;
     }
     
     // Method to update all buttons (call this periodically)
