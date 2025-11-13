@@ -89,7 +89,7 @@ public class LetterSelector : MonoBehaviour
             if (isUnlocked)
             {
                 colors.normalColor = Color.white;
-                colors.selectedColor = Color.green;
+                colors.selectedColor = Color.white;
             }
             else
             {
