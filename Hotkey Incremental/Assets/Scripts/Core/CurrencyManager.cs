@@ -68,6 +68,8 @@ public class CurrencyManager : MonoBehaviour
             if (!allLetters[nextLetter].isUnlocked)
             {
                 allLetters[nextLetter].isUnlocked = true;
+                // Reset the amount to 0 when unlocking (prevents accumulated production from locked state)
+                allLetters[nextLetter].amount = 0;
                 return nextLetter;
             }
         }

@@ -48,6 +48,8 @@ public class UnlockManager : MonoBehaviour
     private void UnlockLetter(string letter)
     {
         currencyManager.allLetters[letter].isUnlocked = true;
+        // Reset the amount to 0 when unlocking (prevents accumulated production from locked state)
+        currencyManager.allLetters[letter].amount = 0;
         
         // Notify the letter selector to update the UI
         if (letterSelector != null)

@@ -61,18 +61,40 @@ public class ProductionManager : MonoBehaviour
         }
     }
     
-    private double CalculateProduction(CurrencyData data)
+    private double CalculateProduction(CurrencyData data, string letter)
     {
-        // Get upgrade values
+        // Get upgrade values from current letter
         double baseProduction = data.upgrades["BaseProduction"].effect;
         double multiplier = data.upgrades["Multiplier"].effect;
         double exponent = data.upgrades["Exponent"].effect;
         
-        // Calculate production: base * multiplier * exponent
-        // Exponent acts as an additional multiplier that increases with upgrades
+        // Get previous letter's next-letter upgrades and combine them
+        string previousLetter = GetPreviousLetter(letter);
+        if (!string.IsNullOrEmpty(previousLetter) && currencyManager.allLetters.ContainsKey(previousLetter))
+        {
+            var previousData = currencyManager.allLetters[previousLetter];
+            if (previousData.isUnlocked)
+            {
+                // Combine current letter's upgrades with previous letter's next-letter upgrades
+                baseProduction += previousData.upgrades["nextLetterBaseProduction"].effect;
+                multiplier += previousData.upgrades["nextLetterMulti"].effect;
+                exponent += previousData.upgrades["nextLetterExponent"].effect;
+            }
+        }
+        
+        // Calculate production: (base + prev_nextBase) * (multiplier + prev_nextMulti) raised to (exponent + prev_nextExponent)
         double production = Math.Pow(baseProduction * multiplier, exponent);
         
         return production;
+    }
+    
+    private string GetPreviousLetter(string currentLetter)
+    {
+        if (currentLetter.Length == 1 && currentLetter[0] > 'A' && currentLetter[0] <= 'Z')
+        {
+            return ((char)(currentLetter[0] - 1)).ToString();
+        }
+        return null;
     }
     
     private void CalculateAndAddProduction()
@@ -113,15 +135,15 @@ public class ProductionManager : MonoBehaviour
         {
             if (pair.Value.isUnlocked)
             {
-                double production = CalculateProduction(pair.Value);
+                double production = CalculateProduction(pair.Value, pair.Key);
                 currencyManager.AddCurrency(pair.Key, production * elapsedSeconds);
                 
-                // Calculate and add next letter production
-                double nextLetterProduction = CalculateNextLetterProduction(pair.Value);
-                if (nextLetterProduction > 0)
+                // Calculate and add next letter production (only if next letter is not unlocked yet)
+                string nextLetter = GetNextLetter(pair.Key);
+                if (!string.IsNullOrEmpty(nextLetter) && !currencyManager.IsLetterUnlocked(nextLetter))
                 {
-                    string nextLetter = GetNextLetter(pair.Key);
-                    if (!string.IsNullOrEmpty(nextLetter))
+                    double nextLetterProduction = CalculateNextLetterProduction(pair.Value);
+                    if (nextLetterProduction > 0)
                     {
                         currencyManager.AddCurrency(nextLetter, nextLetterProduction * elapsedSeconds);
                     }
@@ -137,9 +159,9 @@ public class ProductionManager : MonoBehaviour
         double nextLetterMulti = data.upgrades["nextLetterMulti"].effect;
         double nextLetterExponent = data.upgrades["nextLetterExponent"].effect;
         
-        // Calculate next letter production: base * multiplier * exponent
-        // Exponent acts as an additional multiplier that increases with upgrades
-        double production = nextLetterBaseProduction * nextLetterMulti * nextLetterExponent;
+        // Calculate next letter production using the same formula as regular production
+        // This ensures next-letter upgrades actually affect the production rate
+        double production = Math.Pow(nextLetterBaseProduction * nextLetterMulti, nextLetterExponent);
         
         return production;
     }
@@ -161,7 +183,7 @@ public class ProductionManager : MonoBehaviour
             var data = currencyManager.allLetters[letter];
             if (data.isUnlocked)
             {
-                return CalculateProduction(data);
+                return CalculateProduction(data, letter);
             }
         }
         return 0;
