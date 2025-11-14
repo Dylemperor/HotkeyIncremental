@@ -9,6 +9,7 @@ public class UpgradeUI : MonoBehaviour
     public ProductionManager productionManager;
     public TMP_Text[] upgradeTexts; // Assign upgrade display texts in inspector (should be 6)
     public Button[] upgradeButtons; // Assign upgrade buttons in inspector (should be 6)
+    public TMP_Text maxAllButtonText; // Assign the Max All button's text component in inspector
     public string currentLetter = "A";
     
     private string[] upgradeNames = {
@@ -50,6 +51,12 @@ public class UpgradeUI : MonoBehaviour
     
     public void RefreshUpgradeUI()
     {
+        // Update Max All button text with current letter (always update, even if letter doesn't exist)
+        if (maxAllButtonText != null)
+        {
+            maxAllButtonText.text = $"Max all {currentLetter} upgrades ({currentLetter})";
+        }
+        
         if (!currencyManager.allLetters.ContainsKey(currentLetter))
             return;
             
@@ -263,15 +270,21 @@ public class UpgradeUI : MonoBehaviour
     // Function to attach to the "Max All Upgrades" button
     public void MaxAllUpgrades()
     {
-        Debug.Log($"MaxAllUpgrades called for letter: {currentLetter}");
+        MaxAllUpgradesForLetter(currentLetter, true);
+    }
+    
+    // Function to max upgrades for a specific letter without changing the UI
+    public void MaxAllUpgradesForLetter(string letter, bool refreshUI = false)
+    {
+        Debug.Log($"MaxAllUpgradesForLetter called for letter: {letter}");
         
-        if (!currencyManager.allLetters.ContainsKey(currentLetter))
+        if (!currencyManager.allLetters.ContainsKey(letter))
         {
-            Debug.LogError($"Letter {currentLetter} not found in currency manager!");
+            Debug.LogError($"Letter {letter} not found in currency manager!");
             return;
         }
             
-        var currencyData = currencyManager.allLetters[currentLetter];
+        var currencyData = currencyManager.allLetters[letter];
         bool purchasedAny = false;
         int totalPurchased = 0;
         
@@ -281,7 +294,7 @@ public class UpgradeUI : MonoBehaviour
         if (useCheapestFirstOrder)
         {
             // Dynamic ordering: sort by cost (cheapest first)
-            upgradesToPurchase = GetUpgradesOrderedByCost(currencyData);
+            upgradesToPurchase = GetUpgradesOrderedByCost(currencyData, letter);
         }
         else
         {
@@ -296,7 +309,7 @@ public class UpgradeUI : MonoBehaviour
             bool isNextLetter = upgradeName == "nextLetterBaseProduction" || 
                                 upgradeName == "nextLetterMulti" || 
                                 upgradeName == "nextLetterExponent";
-            if (isNextLetter && currentLetter == "Z")
+            if (isNextLetter && letter == "Z")
             {
                 continue; // Skip next-letter upgrades when at max letter
             }
@@ -313,6 +326,7 @@ public class UpgradeUI : MonoBehaviour
                     upgrade.Upgrade();
                     purchasedAny = true;
                     purchasedThisUpgrade++;
+                    totalPurchased++;
                 }
                 
                 if (purchasedThisUpgrade > 0)
@@ -324,12 +338,16 @@ public class UpgradeUI : MonoBehaviour
         
         if (purchasedAny)
         {
-            RefreshUpgradeUI();
-            Debug.Log($"Maxed all upgrades for letter {currentLetter}. Total purchases: {totalPurchased}");
+            // Only refresh UI if requested (for current letter) or if it's the currently displayed letter
+            if (refreshUI || letter == currentLetter)
+            {
+                RefreshUpgradeUI();
+            }
+            Debug.Log($"Maxed all upgrades for letter {letter}. Total purchases: {totalPurchased}");
         }
         else
         {
-            Debug.Log($"No upgrades could be purchased for letter {currentLetter} (insufficient funds)");
+            Debug.Log($"No upgrades could be purchased for letter {letter} (insufficient funds)");
         }
     }
     
@@ -396,7 +414,7 @@ public class UpgradeUI : MonoBehaviour
     }
     
     // Method to get upgrades ordered by cost (cheapest first)
-    private List<string> GetUpgradesOrderedByCost(CurrencyData currencyData)
+    private List<string> GetUpgradesOrderedByCost(CurrencyData currencyData, string letter)
     {
         List<(string name, double cost)> upgradeCosts = new List<(string, double)>();
         
@@ -406,7 +424,7 @@ public class UpgradeUI : MonoBehaviour
             bool isNextLetter = upgradeName == "nextLetterBaseProduction" || 
                                 upgradeName == "nextLetterMulti" || 
                                 upgradeName == "nextLetterExponent";
-            if (isNextLetter && currentLetter == "Z")
+            if (isNextLetter && letter == "Z")
             {
                 continue;
             }

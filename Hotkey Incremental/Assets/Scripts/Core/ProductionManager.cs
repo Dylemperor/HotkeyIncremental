@@ -138,16 +138,8 @@ public class ProductionManager : MonoBehaviour
                 double production = CalculateProduction(pair.Value, pair.Key);
                 currencyManager.AddCurrency(pair.Key, production * elapsedSeconds);
                 
-                // Calculate and add next letter production (only if next letter is not unlocked yet)
-                string nextLetter = GetNextLetter(pair.Key);
-                if (!string.IsNullOrEmpty(nextLetter) && !currencyManager.IsLetterUnlocked(nextLetter))
-                {
-                    double nextLetterProduction = CalculateNextLetterProduction(pair.Value);
-                    if (nextLetterProduction > 0)
-                    {
-                        currencyManager.AddCurrency(nextLetter, nextLetterProduction * elapsedSeconds);
-                    }
-                }
+                // Note: Next letter production is no longer accumulated for locked letters
+                // Letters unlock based on previous letter's amount, not their own accumulated currency
             }
         }
     }

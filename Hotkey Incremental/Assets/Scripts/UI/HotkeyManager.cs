@@ -43,8 +43,8 @@ public class HotkeyManager : MonoBehaviour
     {
         if (upgradeUI != null)
         {
-            upgradeUI.SetCurrentLetter(letter);
-            upgradeUI.MaxAllUpgrades();
+            // Buy upgrades for the letter without switching the UI
+            upgradeUI.MaxAllUpgradesForLetter(letter, false);
             Debug.Log($"Maxed upgrades for letter {letter}");
         }
         else
