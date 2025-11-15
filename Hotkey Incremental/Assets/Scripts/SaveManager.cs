@@ -11,42 +11,68 @@ public class SaveManager : MonoBehaviour
 
     public void SaveGame()
     {
-        foreach (var pair in currencyManager.allLetters)
+        if (currencyManager == null)
         {
-            string key = SaveKeyPrefix + pair.Key;
-            string upgradeData = SerializeUpgrades(pair.Value.upgrades);
-            PlayerPrefs.SetString(key, $"{pair.Value.amount}|{(pair.Value.isUnlocked ? 1 : 0)}|{upgradeData}");
+            Debug.LogError("SaveManager: CurrencyManager is null, cannot save!");
+            return;
         }
+        
+        try
+        {
+            foreach (var pair in currencyManager.allLetters)
+            {
+                string key = SaveKeyPrefix + pair.Key;
+                string upgradeData = SerializeUpgrades(pair.Value.upgrades);
+                PlayerPrefs.SetString(key, $"{pair.Value.amount}|{(pair.Value.isUnlocked ? 1 : 0)}|{upgradeData}");
+            }
 
-        PlayerPrefs.Save();
-        Debug.Log("Game Saved");
+            PlayerPrefs.Save();
+            Debug.Log("Game Saved successfully");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error saving game: {e.Message}");
+        }
     }
 
     public void LoadGame()
     {
-        foreach (var pair in currencyManager.allLetters)
+        if (currencyManager == null)
         {
-            string key = SaveKeyPrefix + pair.Key;
-            if (PlayerPrefs.HasKey(key))
+            Debug.LogError("SaveManager: CurrencyManager is null, cannot load!");
+            return;
+        }
+        
+        try
+        {
+            foreach (var pair in currencyManager.allLetters)
             {
-                string[] parts = PlayerPrefs.GetString(key).Split('|');
-                if (parts.Length >= 2)
+                string key = SaveKeyPrefix + pair.Key;
+                if (PlayerPrefs.HasKey(key))
                 {
-                    if (double.TryParse(parts[0], out double amount))
-                        pair.Value.amount = amount;
-
-                    pair.Value.isUnlocked = parts[1] == "1";
-                    
-                    // Load upgrade data if available
-                    if (parts.Length >= 3)
+                    string[] parts = PlayerPrefs.GetString(key).Split('|');
+                    if (parts.Length >= 2)
                     {
-                        DeserializeUpgrades(pair.Value.upgrades, parts[2]);
+                        if (double.TryParse(parts[0], out double amount))
+                            pair.Value.amount = amount;
+
+                        pair.Value.isUnlocked = parts[1] == "1";
+                        
+                        // Load upgrade data if available
+                        if (parts.Length >= 3)
+                        {
+                            DeserializeUpgrades(pair.Value.upgrades, parts[2]);
+                        }
                     }
                 }
             }
-        }
 
-        Debug.Log("Game Loaded");
+            Debug.Log("Game Loaded successfully");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error loading game: {e.Message}");
+        }
     }
 
     private string SerializeUpgrades(Dictionary<string, UpgradeData> upgrades)

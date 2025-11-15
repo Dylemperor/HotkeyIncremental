@@ -15,7 +15,7 @@ public class GameController : MonoBehaviour
     public LetterSelector letterSelector;
     
     [Header("Settings")]
-    public float autoSaveInterval = 30f; // Auto save every 30 seconds
+    public float autoSaveInterval = 90f; // Auto save every 2 minutes (120 seconds)
     
     private void Start()
     {
@@ -31,6 +31,39 @@ public class GameController : MonoBehaviour
         Debug.Log("Game started successfully!");
     }
     
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        // Save when the application loses focus (user switches tabs/windows)
+        // This is important for web builds where users might close the tab
+        if (!hasFocus && saveManager != null)
+        {
+            saveManager.SaveGame();
+            Debug.Log("Game saved on focus loss");
+        }
+    }
+    
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        // Save when the application is paused
+        // This works for mobile builds and some web scenarios
+        if (pauseStatus && saveManager != null)
+        {
+            saveManager.SaveGame();
+            Debug.Log("Game saved on pause");
+        }
+    }
+    
+    private void OnApplicationQuit()
+    {
+        // Save when the application is quitting
+        // Note: This may not always fire in web builds, so OnApplicationFocus is important
+        if (saveManager != null)
+        {
+            saveManager.SaveGame();
+            Debug.Log("Game saved on quit");
+        }
+    }
+    
     private IEnumerator AutoSave()
     {
         while (true)
@@ -39,6 +72,7 @@ public class GameController : MonoBehaviour
             if (saveManager != null)
             {
                 saveManager.SaveGame();
+                Debug.Log($"Auto-saved game (every {autoSaveInterval} seconds)");
             }
         }
     }
