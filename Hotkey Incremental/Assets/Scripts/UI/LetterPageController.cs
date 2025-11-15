@@ -90,11 +90,15 @@ public class LetterPageController : MonoBehaviour
         if (canUnlock)
         {
             colors.normalColor = Color.white;
-            colors.selectedColor = Color.green;
+            colors.highlightedColor = Color.gray;
+            colors.pressedColor = Color.gray;
+            colors.selectedColor = Color.gray;
         }
         else
         {
             colors.normalColor = Color.gray;
+            colors.highlightedColor = Color.gray;
+            colors.pressedColor = Color.gray;
             colors.selectedColor = Color.gray;
         }
         unlockNextLetterButton.colors = colors;

@@ -69,16 +69,25 @@ public class ProductionManager : MonoBehaviour
         double exponent = data.upgrades["Exponent"].effect;
         
         // Get previous letter's next-letter upgrades and combine them
+        // Only apply if the upgrades have been purchased (level > 1)
         string previousLetter = GetPreviousLetter(letter);
         if (!string.IsNullOrEmpty(previousLetter) && currencyManager.allLetters.ContainsKey(previousLetter))
         {
             var previousData = currencyManager.allLetters[previousLetter];
             if (previousData.isUnlocked)
             {
-                // Combine current letter's upgrades with previous letter's next-letter upgrades
-                baseProduction += previousData.upgrades["nextLetterBaseProduction"].effect;
-                multiplier += previousData.upgrades["nextLetterMulti"].effect;
-                exponent += previousData.upgrades["nextLetterExponent"].effect;
+                // Only add next-letter upgrades if they've been purchased (level > 1)
+                // This prevents default level 1 upgrades from affecting new letters
+                var nextBase = previousData.upgrades["nextLetterBaseProduction"];
+                var nextMulti = previousData.upgrades["nextLetterMulti"];
+                var nextExp = previousData.upgrades["nextLetterExponent"];
+                
+                if (nextBase.level > 1)
+                    baseProduction += nextBase.effect;
+                if (nextMulti.level > 1)
+                    multiplier += nextMulti.effect;
+                if (nextExp.level > 1)
+                    exponent += nextExp.effect;
             }
         }
         
