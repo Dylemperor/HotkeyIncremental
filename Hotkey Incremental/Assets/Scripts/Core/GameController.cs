@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Reflection;
 
 public class GameController : MonoBehaviour
 {
@@ -8,6 +9,9 @@ public class GameController : MonoBehaviour
     public ProductionManager productionManager;
     public UnlockManager unlockManager;
     public SaveManager saveManager;
+    
+    // WebSaveManager for web builds - assign WebSaveManager component in inspector
+    public MonoBehaviour webSaveManager;
     
     [Header("UI Systems")]
     public MainViewController mainViewController;
@@ -19,11 +23,43 @@ public class GameController : MonoBehaviour
     
     private void Start()
     {
-        // Load the game
+        // Wait a frame to ensure CurrencyManager is initialized
+        StartCoroutine(InitializeGame());
+    }
+    
+    private IEnumerator InitializeGame()
+    {
+        // Wait for CurrencyManager to be ready
+        yield return null;
+        
+        // Load the game - prefer WebSaveManager for web builds
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        if (webSaveManager != null)
+        {
+            var method = webSaveManager.GetType().GetMethod("LoadGame");
+            if (method != null)
+            {
+                method.Invoke(webSaveManager, null);
+            }
+        }
+        else if (saveManager != null)
+        {
+            saveManager.LoadGame();
+        }
+        #else
         if (saveManager != null)
         {
             saveManager.LoadGame();
         }
+        else if (webSaveManager != null)
+        {
+            var method = webSaveManager.GetType().GetMethod("LoadGame");
+            if (method != null)
+            {
+                method.Invoke(webSaveManager, null);
+            }
+        }
+        #endif
         
         // Start auto-save coroutine
         StartCoroutine(AutoSave());
@@ -35,9 +71,9 @@ public class GameController : MonoBehaviour
     {
         // Save when the application loses focus (user switches tabs/windows)
         // This is important for web builds where users might close the tab
-        if (!hasFocus && saveManager != null)
+        if (!hasFocus)
         {
-            saveManager.SaveGame();
+            SaveGameNow();
             Debug.Log("Game saved on focus loss");
         }
     }
@@ -46,9 +82,9 @@ public class GameController : MonoBehaviour
     {
         // Save when the application is paused
         // This works for mobile builds and some web scenarios
-        if (pauseStatus && saveManager != null)
+        if (pauseStatus)
         {
-            saveManager.SaveGame();
+            SaveGameNow();
             Debug.Log("Game saved on pause");
         }
     }
@@ -57,11 +93,40 @@ public class GameController : MonoBehaviour
     {
         // Save when the application is quitting
         // Note: This may not always fire in web builds, so OnApplicationFocus is important
+        SaveGameNow();
+        Debug.Log("Game saved on quit");
+    }
+    
+    private void SaveGameNow()
+    {
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        if (webSaveManager != null)
+        {
+            // Use reflection to call SaveGame on WebSaveManager
+            var method = webSaveManager.GetType().GetMethod("SaveGame");
+            if (method != null)
+            {
+                method.Invoke(webSaveManager, null);
+            }
+        }
+        else if (saveManager != null)
+        {
+            saveManager.SaveGame();
+        }
+        #else
         if (saveManager != null)
         {
             saveManager.SaveGame();
-            Debug.Log("Game saved on quit");
         }
+        else if (webSaveManager != null)
+        {
+            var method = webSaveManager.GetType().GetMethod("SaveGame");
+            if (method != null)
+            {
+                method.Invoke(webSaveManager, null);
+            }
+        }
+        #endif
     }
     
     private IEnumerator AutoSave()
@@ -69,30 +134,47 @@ public class GameController : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(autoSaveInterval);
-            if (saveManager != null)
-            {
-                saveManager.SaveGame();
-                Debug.Log($"Auto-saved game (every {autoSaveInterval} seconds)");
-            }
+            SaveGameNow();
+            Debug.Log($"Auto-saved game (every {autoSaveInterval} seconds)");
         }
     }
     
     // Method to manually save the game
     public void SaveGame()
     {
-        if (saveManager != null)
-        {
-            saveManager.SaveGame();
-        }
+        SaveGameNow();
     }
     
     // Method to reset the game
     public void ResetGame()
     {
+        #if UNITY_WEBGL && !UNITY_EDITOR
+        if (webSaveManager != null)
+        {
+            var method = webSaveManager.GetType().GetMethod("ResetSave");
+            if (method != null)
+            {
+                method.Invoke(webSaveManager, null);
+            }
+        }
+        else if (saveManager != null)
+        {
+            saveManager.ResetSave();
+        }
+        #else
         if (saveManager != null)
         {
             saveManager.ResetSave();
         }
+        else if (webSaveManager != null)
+        {
+            var method = webSaveManager.GetType().GetMethod("ResetSave");
+            if (method != null)
+            {
+                method.Invoke(webSaveManager, null);
+            }
+        }
+        #endif
         
         // Restart the scene or reload the game
         UnityEngine.SceneManagement.SceneManager.LoadScene(
