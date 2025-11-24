@@ -98,9 +98,9 @@ public class UpgradeUI : MonoBehaviour
         if (text != null)
         {
             string displayName = upgradeName;
-            string effectDescription = upgradeData.effect.ToString("F1");
+            string effectDescription = "";
             
-            // Make the upgrade names more descriptive
+            // Make the upgrade names more descriptive and format effects appropriately
             if (upgradeName == "nextLetterBaseProduction")
             {
                 string nextLetter = GetNextLetter(currentLetter);
@@ -112,7 +112,15 @@ public class UpgradeUI : MonoBehaviour
                 {
                     displayName = "Next Letter Base Production (Max)";
                 }
-                effectDescription = upgradeData.effect.ToString("F1") + "/s";
+                // For next-letter upgrades, show what will be added to next letter
+                if (upgradeData.level == 1 && upgradeData.useAdditiveEffect)
+                {
+                    effectDescription = $"+{upgradeData.effectIncrement:F1}/s (adds to {nextLetter ?? "next"} letter)";
+                }
+                else
+                {
+                    effectDescription = upgradeData.effect.ToString("F1") + "/s";
+                }
             }
             else if (upgradeName == "nextLetterMulti")
             {
@@ -124,6 +132,15 @@ public class UpgradeUI : MonoBehaviour
                 else
                 {
                     displayName = "Next Letter Multiplier (Max)";
+                }
+                // For next-letter upgrades, show what will be added to next letter
+                if (upgradeData.level == 1 && upgradeData.useAdditiveEffect)
+                {
+                    effectDescription = $"+{upgradeData.effectIncrement:F1} (adds to {nextLetter ?? "next"} letter)";
+                }
+                else
+                {
+                    effectDescription = upgradeData.effect.ToString("F1");
                 }
             }
             else if (upgradeName == "nextLetterExponent")
@@ -137,14 +154,30 @@ public class UpgradeUI : MonoBehaviour
                 {
                     displayName = "Next Letter Power Multiplier (Max)";
                 }
+                // For next-letter upgrades, show what will be added to next letter
+                if (upgradeData.level == 1 && upgradeData.useAdditiveEffect)
+                {
+                    effectDescription = $"+{upgradeData.effectIncrement:F1} (adds to {nextLetter ?? "next"} letter)";
+                }
+                else
+                {
+                    effectDescription = upgradeData.effect.ToString("F1");
+                }
             }
             else if (upgradeName == "Exponent")
             {
                 displayName = "Power Multiplier";
+                effectDescription = upgradeData.effect.ToString("F1");
             }
             else if (upgradeName == "BaseProduction")
             {
                 displayName = "Base Production";
+                effectDescription = upgradeData.effect.ToString("F1");
+            }
+            else
+            {
+                // Default effect display
+                effectDescription = upgradeData.effect.ToString("F1");
             }
             
             text.text = $"{displayName}\nLevel: {upgradeData.level}\nCost: {NumberFormatter.Format(upgradeData.cost)}\nEffect: {effectDescription}";

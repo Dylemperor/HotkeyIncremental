@@ -11,8 +11,18 @@ public class MainViewController : MonoBehaviour
     public UpgradeUI upgradeUI;
     public LetterPageController letterPageController;
     
+    [Header("Update Settings")]
+    [Tooltip("How often to update the main view display (in seconds). Lower = faster updates.")]
+    public float updateInterval = 0.1f; // Default to 0.1 seconds (10 times per second)
+    
     private void Start()
     {
+        // Load update interval from PlayerPrefs if available
+        if (PlayerPrefs.HasKey("MainViewUpdateInterval"))
+        {
+            updateInterval = PlayerPrefs.GetFloat("MainViewUpdateInterval", 0.1f);
+        }
+        
         StartCoroutine(RefreshMainLetterUI());
     }
 
@@ -24,8 +34,16 @@ public class MainViewController : MonoBehaviour
             UpdateProductionDisplay();
             if (upgradeUI != null)
                 upgradeUI.UpdateAllButtons();
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(updateInterval);
         }
+    }
+    
+    // Method to change update interval (can be called from settings UI)
+    public void SetUpdateInterval(float interval)
+    {
+        updateInterval = Mathf.Clamp(interval, 0.01f, 1.0f); // Clamp between 0.01 and 1 second
+        PlayerPrefs.SetFloat("MainViewUpdateInterval", updateInterval);
+        PlayerPrefs.Save();
     }
 
     void UpdateMainLetterDisplay()

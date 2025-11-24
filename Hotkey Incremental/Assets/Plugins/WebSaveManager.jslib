@@ -50,6 +50,30 @@ mergeInto(LibraryManager.library, {
         } catch (e) {
             console.error("Error clearing localStorage:", e);
         }
+    },
+
+    CopyToClipboard: function (textPtr) {
+        var text = UTF8ToString(textPtr);
+        try {
+            // Create a temporary textarea element
+            var textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            textarea.style.opacity = "0";
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textarea);
+            console.log("Copied to clipboard");
+        } catch (e) {
+            console.error("Error copying to clipboard:", e);
+            // Fallback: try modern clipboard API
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).catch(function(err) {
+                    console.error("Clipboard API error:", err);
+                });
+            }
+        }
     }
 });
 

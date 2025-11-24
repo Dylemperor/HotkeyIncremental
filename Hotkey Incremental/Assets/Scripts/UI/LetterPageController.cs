@@ -14,10 +14,20 @@ public class LetterPageController : MonoBehaviour
     public TMP_Text unlockButtonText;
     public string currentLetter = "A";
     
+    [Header("Update Settings")]
+    [Tooltip("How often to update the letter display (in seconds). Lower = faster updates.")]
+    public float updateInterval = 0.1f; // Default to 0.1 seconds (10 times per second)
+    
     private const double UNLOCK_CURRENCY_THRESHOLD = 1000000000; // 1 billion
     
     private void Start()
     {
+        // Load update interval from PlayerPrefs if available
+        if (PlayerPrefs.HasKey("LetterViewUpdateInterval"))
+        {
+            updateInterval = PlayerPrefs.GetFloat("LetterViewUpdateInterval", 0.1f);
+        }
+        
         StartCoroutine(UpdateLetterDisplay());
     }
     
@@ -26,8 +36,16 @@ public class LetterPageController : MonoBehaviour
         while (true)
         {
             UpdateLetterInfo();
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(updateInterval);
         }
+    }
+    
+    // Method to change update interval (can be called from settings UI)
+    public void SetUpdateInterval(float interval)
+    {
+        updateInterval = Mathf.Clamp(interval, 0.01f, 1.0f); // Clamp between 0.01 and 1 second
+        PlayerPrefs.SetFloat("LetterViewUpdateInterval", updateInterval);
+        PlayerPrefs.Save();
     }
     
     public void LoadLetter(string letter)

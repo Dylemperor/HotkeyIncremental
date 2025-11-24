@@ -37,12 +37,13 @@ public class CurrencyData
             true, 0.1); // Additive effect, +0.1 per level
         
         // Next-letter upgrades keep canonical keys; names are pretty for UI
+        // Start with effect = 0 so first purchase adds the increment (not 1 + increment)
         upgrades["nextLetterBaseProduction"] = new UpgradeData(
-            "Next Letter Base Production", 1, 1, 100000000000, 5, true, 1);
+            "Next Letter Base Production", 1, 0, 100000000000, 5, true, 1);
         upgrades["nextLetterMulti"] = new UpgradeData(
-            "Next Letter Multi", 1, 1, 1000000000000000, 25, true, 0.5);
+            "Next Letter Multi", 1, 0, 1000000000000000, 25, true, 0.5);
         upgrades["nextLetterExponent"] = new UpgradeData(
-            "Next Letter Exponent", 1, 1, 1000000000000000000, 50, true, 0.1);
+            "Next Letter Exponent", 1, 0, 1000000000000000000, 50, true, 0.1);
     }
 
     public double GetMultiplier()

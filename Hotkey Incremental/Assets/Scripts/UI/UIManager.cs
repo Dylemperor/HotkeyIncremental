@@ -6,6 +6,7 @@ public class UIManager : MonoBehaviour
     public GameObject letterPage;
     public GameObject titleScreen;
     public GameObject infoView;
+    public GameObject settingsView;
 
     public void ShowMainView()
     {
@@ -13,6 +14,7 @@ public class UIManager : MonoBehaviour
         letterPage.SetActive(false);
         titleScreen.SetActive(false);
         infoView.SetActive(false);
+        settingsView.SetActive(false);
     }
 
     public void ShowLetterPage()
@@ -21,6 +23,7 @@ public class UIManager : MonoBehaviour
         letterPage.SetActive(true);
         titleScreen.SetActive(false);
         infoView.SetActive(false);
+        settingsView.SetActive(false);
     }
 
     public void ShowTitleScreen()
@@ -29,6 +32,7 @@ public class UIManager : MonoBehaviour
         letterPage.SetActive(false);
         titleScreen.SetActive(true);
         infoView.SetActive(false);
+        settingsView.SetActive(false);
     }
     
     public void ShowInfoView()
@@ -37,5 +41,15 @@ public class UIManager : MonoBehaviour
         letterPage.SetActive(false);
         titleScreen.SetActive(false);
         infoView.SetActive(true);
+        settingsView.SetActive(false);
+    }
+    
+    public void ShowSettingsView()
+    {
+        mainView.SetActive(false);
+        letterPage.SetActive(false);
+        titleScreen.SetActive(false);
+        infoView.SetActive(false);
+        settingsView.SetActive(true);
     }
 }
