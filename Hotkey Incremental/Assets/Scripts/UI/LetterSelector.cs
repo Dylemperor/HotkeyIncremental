@@ -84,12 +84,35 @@ public class LetterSelector : MonoBehaviour
             bool isUnlocked = currencyManager.IsLetterUnlocked(letter);
             button.interactable = isUnlocked;
             
-            // Change color based on unlock status
+            // Change color based on unlock status and prestige
             var colors = button.colors;
             if (isUnlocked)
             {
-                colors.normalColor = Color.white;
-                colors.selectedColor = Color.white;
+                // Check for prestige status
+                var letterData = currencyManager.allLetters[letter];
+                
+                if (letterData.isGold)
+                {
+                    // Gold color - rich gold with slight shine
+                    Color goldColor = new Color(0.85f, 0.65f, 0.13f, 1f);
+                    colors.normalColor = goldColor;
+                    colors.selectedColor = new Color(goldColor.r * 1.1f, goldColor.g * 1.1f, goldColor.b * 1.1f, 1f);
+                    colors.highlightedColor = new Color(goldColor.r * 1.2f, goldColor.g * 1.2f, goldColor.b * 1.2f, 1f);
+                }
+                else if (letterData.isSilver)
+                {
+                    // Silver color - slightly blue-tinted silver
+                    Color silverColor = new Color(0.75f, 0.75f, 0.8f, 1f);
+                    colors.normalColor = silverColor;
+                    colors.selectedColor = new Color(silverColor.r * 1.1f, silverColor.g * 1.1f, silverColor.b * 1.1f, 1f);
+                    colors.highlightedColor = new Color(silverColor.r * 1.2f, silverColor.g * 1.2f, silverColor.b * 1.2f, 1f);
+                }
+                else
+                {
+                    // Normal unlocked color
+                    colors.normalColor = Color.white;
+                    colors.selectedColor = Color.white;
+                }
             }
             else
             {

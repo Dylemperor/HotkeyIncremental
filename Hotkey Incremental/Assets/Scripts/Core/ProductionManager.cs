@@ -92,7 +92,8 @@ public class ProductionManager : MonoBehaviour
         }
         
         // Calculate production: (base + prev_nextBase) * (multiplier + prev_nextMulti) raised to (exponent + prev_nextExponent)
-        double production = Math.Pow(baseProduction * multiplier, exponent);
+        double production = Math.Pow(baseProduction * multiplier, exponent)* data.prestigeMultiplier;
+        
         
         return production;
     }

@@ -8,6 +8,11 @@ public class CurrencyData
 
     public Dictionary<string, UpgradeData> upgrades = new Dictionary<string, UpgradeData>();
     public bool isUnlocked;
+    
+    // Prestige system
+    public bool isSilver = false;
+    public bool isGold = false;
+    public double prestigeMultiplier = 1.0; // Combined multiplier from silver/gold prestige
 
     public CurrencyData(string letter)
     {
