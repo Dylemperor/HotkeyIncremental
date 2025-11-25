@@ -44,11 +44,14 @@ public class CurrencyData
         // Next-letter upgrades keep canonical keys; names are pretty for UI
         // Start with effect = 0 so first purchase adds the increment (not 1 + increment)
         upgrades["nextLetterBaseProduction"] = new UpgradeData(
-            "Next Letter Base Production", 1, 0, 100000000000, 5, true, 1);
+            "Next Letter Base Production", 1, 0, 100000000000, 
+            new int[] {5, 10, 20, 25, 50}, new double[] {2, 2.5, 3, 5, 10}, true, 1);
         upgrades["nextLetterMulti"] = new UpgradeData(
-            "Next Letter Multi", 1, 0, 1000000000000000, 25, true, 0.5);
+            "Next Letter Multi", 1, 0, 100000000000000, 
+            new int[] { 5, 10, 20, 25, 50}, new double[] {2.5, 3, 5, 10, 20}, true, 0.5);
         upgrades["nextLetterExponent"] = new UpgradeData(
-            "Next Letter Exponent", 1, 0, 1000000000000000000, 50, true, 0.1);
+            "Next Letter Exponent", 1, 0, 100000000000000000, 
+            new int[] { 5, 10, 20, 25, 50}, new double[] {3, 3.5, 5, 10, 20}, true, 0.1);
     }
 
     public double GetMultiplier()
