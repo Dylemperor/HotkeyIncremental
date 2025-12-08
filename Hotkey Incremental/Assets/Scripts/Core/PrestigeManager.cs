@@ -120,14 +120,6 @@ public class PrestigeManager : MonoBehaviour
         
         // Apply gold plating to the next letter (overrides silver)
         var letterData = currencyManager.allLetters[letterToPlate];
-        
-        // If it was silver, decrement silver count
-        if (letterData.isSilver)
-        {
-            silverPlatedCount--;
-        }
-        
-        letterData.isSilver = false; // Gold replaces silver
         letterData.isGold = true;
         
         // Remove silver multiplier and apply gold multiplier
