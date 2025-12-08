@@ -6,6 +6,7 @@ public class PrestigeManager : MonoBehaviour
 {
     public CurrencyManager currencyManager;
     public UnlockManager unlockManager;
+    public LetterSelector letterSelector; // Optional: for UI updates
     
     [Header("Silver Prestige Settings")]
     public double silverPrestigeRequirement = 100000000000; // 100 Billion Z currency
@@ -65,6 +66,9 @@ public class PrestigeManager : MonoBehaviour
         // Reset all letter currencies
         ResetAllCurrencies();
         
+        // Lock all letters except 'A'
+        LockAllLettersExceptA();
+        
         // Apply silver plating to the next letter
         var letterData = currencyManager.allLetters[letterToPlate];
         letterData.isSilver = true;
@@ -72,6 +76,29 @@ public class PrestigeManager : MonoBehaviour
         silverPlatedCount++;
         
         Debug.Log($"Silver Prestige: {letterToPlate} is now silver plated! ({silverPlatedCount}/{GetTotalUnlockedLetters()} letters plated)");
+    }
+    
+    // Lock all letters except 'A'
+    private void LockAllLettersExceptA()
+    {
+        foreach (var pair in currencyManager.allLetters)
+        {
+            if (pair.Key != "A")
+            {
+                pair.Value.isUnlocked = false;
+            }
+            else
+            {
+                // Ensure 'A' remains unlocked
+                pair.Value.isUnlocked = true;
+            }
+        }
+        
+        // Update UI to reflect locked letters
+        if (letterSelector != null)
+        {
+            letterSelector.UpdateAllLetterButtons();
+        }
     }
     
     // Perform gold prestige reset
@@ -87,6 +114,9 @@ public class PrestigeManager : MonoBehaviour
         
         // Reset all letter currencies
         ResetAllCurrencies();
+        
+        // Lock all letters except 'A'
+        LockAllLettersExceptA();
         
         // Apply gold plating to the next letter (overrides silver)
         var letterData = currencyManager.allLetters[letterToPlate];

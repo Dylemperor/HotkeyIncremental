@@ -94,7 +94,7 @@ public class LetterSelector : MonoBehaviour
                 if (letterData.isGold)
                 {
                     // Gold color - rich gold with slight shine
-                    Color goldColor = new Color(0.85f, 0.65f, 0.13f, 1f);
+                    Color goldColor = new Color(1f, 0.95f, 0.4f, 1f);
                     colors.normalColor = goldColor;
                     colors.selectedColor = new Color(goldColor.r * 1.1f, goldColor.g * 1.1f, goldColor.b * 1.1f, 1f);
                     colors.highlightedColor = new Color(goldColor.r * 1.2f, goldColor.g * 1.2f, goldColor.b * 1.2f, 1f);
@@ -102,7 +102,7 @@ public class LetterSelector : MonoBehaviour
                 else if (letterData.isSilver)
                 {
                     // Silver color - slightly blue-tinted silver
-                    Color silverColor = new Color(0.75f, 0.75f, 0.8f, 1f);
+                    Color silverColor = new Color(0.75f, 0.85f, 0.95f, 1f);
                     colors.normalColor = silverColor;
                     colors.selectedColor = new Color(silverColor.r * 1.1f, silverColor.g * 1.1f, silverColor.b * 1.1f, 1f);
                     colors.highlightedColor = new Color(silverColor.r * 1.2f, silverColor.g * 1.2f, silverColor.b * 1.2f, 1f);

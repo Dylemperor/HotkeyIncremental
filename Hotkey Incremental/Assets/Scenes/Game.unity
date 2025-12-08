@@ -4378,7 +4378,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 583.2, y: 237.01}
+  m_AnchoredPosition: {x: 592.7, y: 257}
   m_SizeDelta: {x: 65, y: 65}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &476008487
@@ -7105,6 +7105,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PrestigeManager
   currencyManager: {fileID: 998681668}
   unlockManager: {fileID: 1900686851}
+  letterSelector: {fileID: 0}
   silverPrestigeRequirement: 100000000000
   silverMultiplier: 2
   goldMultiplier: 5
@@ -8475,7 +8476,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &795907626
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10677,7 +10678,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1027501191
 MonoBehaviour:
   m_ObjectHideFlags: 0
