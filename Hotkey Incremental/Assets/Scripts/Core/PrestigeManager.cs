@@ -44,12 +44,11 @@ public class PrestigeManager : MonoBehaviour
         return zData.isUnlocked && zData.amount >= silverPrestigeRequirement;
     }
     
-    // Check if gold prestige is available (all letters are silver plated)
+    // Check if gold prestige is available (all 26 letters are silver plated)
     public bool CanGoldPrestige()
     {
-        // Check if all letters are silver plated
-        int totalUnlocked = currencyManager.allLetters.Values.Count(l => l.isUnlocked);
-        return totalUnlocked > 0 && silverPlatedCount >= totalUnlocked;
+        // Check if all 26 letters (A-Z) are silver plated
+        return silverPlatedCount >= 26;
     }
     
     // Perform silver prestige reset
@@ -58,13 +57,16 @@ public class PrestigeManager : MonoBehaviour
         if (!CanSilverPrestige())
             return;
         
-        // Get the next letter to silver plate (in unlock order)
+        // Get the next letter to silver plate (in unlock order) BEFORE locking
         string letterToPlate = GetNextLetterToSilverPlate();
         if (letterToPlate == null)
             return;
         
         // Reset all letter currencies
         ResetAllCurrencies();
+        
+        // Reset all upgrades for all letters
+        ResetAllUpgrades();
         
         // Lock all letters except 'A'
         LockAllLettersExceptA();
@@ -75,17 +77,28 @@ public class PrestigeManager : MonoBehaviour
         letterData.prestigeMultiplier *= silverMultiplier;
         silverPlatedCount++;
         
-        Debug.Log($"Silver Prestige: {letterToPlate} is now silver plated! ({silverPlatedCount}/{GetTotalUnlockedLetters()} letters plated)");
+        // Update UI AFTER applying plating so colors are correct
+        UpdateLetterSelectorUI();
+        
+        Debug.Log($"Silver Prestige: {letterToPlate} is now silver plated! ({silverPlatedCount}/26 letters plated)");
     }
     
     // Lock all letters except 'A'
     private void LockAllLettersExceptA()
     {
+        if (currencyManager == null || currencyManager.allLetters == null)
+        {
+            Debug.LogError("PrestigeManager: CurrencyManager or allLetters is null!");
+            return;
+        }
+        
+        int lockedCount = 0;
         foreach (var pair in currencyManager.allLetters)
         {
             if (pair.Key != "A")
             {
                 pair.Value.isUnlocked = false;
+                lockedCount++;
             }
             else
             {
@@ -94,10 +107,34 @@ public class PrestigeManager : MonoBehaviour
             }
         }
         
-        // Update UI to reflect locked letters
+        Debug.Log($"PrestigeManager: Locked {lockedCount} letters, kept 'A' unlocked.");
+    }
+    
+    // Reset all upgrades for all letters
+    private void ResetAllUpgrades()
+    {
+        if (currencyManager == null || currencyManager.allLetters == null)
+            return;
+        
+        foreach (var pair in currencyManager.allLetters)
+        {
+            var data = pair.Value;
+            // Reinitialize upgrades to reset them to default state
+            data.InitializeDefaultUpgrades();
+        }
+    }
+    
+    // Update LetterSelector UI
+    private void UpdateLetterSelectorUI()
+    {
         if (letterSelector != null)
         {
             letterSelector.UpdateAllLetterButtons();
+            Debug.Log("PrestigeManager: LetterSelector UI updated after prestige.");
+        }
+        else
+        {
+            Debug.LogWarning("PrestigeManager: LetterSelector is not assigned! UI will not update after prestige.");
         }
     }
     
@@ -115,11 +152,22 @@ public class PrestigeManager : MonoBehaviour
         // Reset all letter currencies
         ResetAllCurrencies();
         
+        // Reset all upgrades for all letters
+        ResetAllUpgrades();
+        
         // Lock all letters except 'A'
         LockAllLettersExceptA();
         
         // Apply gold plating to the next letter (overrides silver)
         var letterData = currencyManager.allLetters[letterToPlate];
+        
+        // If it was silver, decrement silver count
+        if (letterData.isSilver)
+        {
+            silverPlatedCount--;
+        }
+        
+        letterData.isSilver = false; // Gold replaces silver
         letterData.isGold = true;
         
         // Remove silver multiplier and apply gold multiplier
@@ -135,7 +183,10 @@ public class PrestigeManager : MonoBehaviour
         
         goldPlatedCount++;
         
-        Debug.Log($"Gold Prestige: {letterToPlate} is now gold plated! ({goldPlatedCount}/{GetTotalUnlockedLetters()} letters plated)");
+        // Update UI AFTER applying plating so colors are correct
+        UpdateLetterSelectorUI();
+        
+        Debug.Log($"Gold Prestige: {letterToPlate} is now gold plated! ({goldPlatedCount}/26 letters plated)");
     }
     
     // Get the next letter to silver plate (in unlock order)
@@ -146,7 +197,9 @@ public class PrestigeManager : MonoBehaviour
             if (currencyManager.allLetters.ContainsKey(letter))
             {
                 var data = currencyManager.allLetters[letter];
-                if (data.isUnlocked && !data.isSilver && !data.isGold)
+                // Plate letters in order, regardless of current unlock status
+                // (they will be locked after prestige anyway, except A)
+                if (!data.isSilver && !data.isGold)
                 {
                     return letter;
                 }
@@ -163,7 +216,8 @@ public class PrestigeManager : MonoBehaviour
             if (currencyManager.allLetters.ContainsKey(letter))
             {
                 var data = currencyManager.allLetters[letter];
-                if (data.isUnlocked && data.isSilver && !data.isGold)
+                // Plate letters in order that are silver but not gold
+                if (data.isSilver && !data.isGold)
                 {
                     return letter;
                 }

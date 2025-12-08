@@ -25,12 +25,19 @@ public class UnlockManager : MonoBehaviour
 
     public void CheckForUnlocks()
     {
+        // Null check for currencyManager
+        if (currencyManager == null || currencyManager.allLetters == null)
+            return;
+        
         for (int i = 1; i < letterOrder.Count; i++)
         {
             string prevLetter = letterOrder[i - 1];
             string currentLetter = letterOrder[i];
 
+            // Check if both letters exist in the dictionary
+            if (!currencyManager.allLetters.ContainsKey(prevLetter)) continue;
             if (!currencyManager.allLetters.ContainsKey(currentLetter)) continue;
+            
             if (currencyManager.allLetters[currentLetter].isUnlocked) continue;
 
             // Don't unlock if the previous letter has 0 amount
@@ -41,12 +48,20 @@ public class UnlockManager : MonoBehaviour
             if (currencyManager.allLetters[prevLetter].amount >= unlockCost)
             {
                 UnlockLetter(currentLetter);
+                currencyManager.allLetters[prevLetter].amount -= unlockCost;
             }
         }
     }
     
     private void UnlockLetter(string letter)
     {
+        // Null check
+        if (currencyManager == null || currencyManager.allLetters == null)
+            return;
+        
+        if (!currencyManager.allLetters.ContainsKey(letter))
+            return;
+        
         currencyManager.allLetters[letter].isUnlocked = true;
         // Reset the amount to 0 when unlocking (prevents accumulated production from locked state)
         currencyManager.allLetters[letter].amount = 0;
@@ -62,6 +77,10 @@ public class UnlockManager : MonoBehaviour
 
     public CurrencyData GetHighestUnlockedLetter()
     {
+        // Null check
+        if (currencyManager == null || currencyManager.allLetters == null)
+            return null;
+        
         for (int i = letterOrder.Count - 1; i >= 0; i--)
         {
             string letterKey = letterOrder[i];
@@ -75,6 +94,10 @@ public class UnlockManager : MonoBehaviour
 
     void UpdateMainLetterDisplay()
     {
+        // Null check for mainLetterDisplay
+        if (mainLetterDisplay == null)
+            return;
+        
         var highest = GetHighestUnlockedLetter();
         if (highest != null)
         {
