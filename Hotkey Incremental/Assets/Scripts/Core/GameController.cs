@@ -148,6 +148,13 @@ public class GameController : MonoBehaviour
     // Method to reset the game
     public void ResetGame()
     {
+        // Reset prestige data before clearing saves
+        var prestigeManager = FindFirstObjectByType<PrestigeManager>();
+        if (prestigeManager != null)
+        {
+            prestigeManager.ResetAllPrestigeData();
+        }
+        
         #if UNITY_WEBGL && !UNITY_EDITOR
         if (webSaveManager != null)
         {

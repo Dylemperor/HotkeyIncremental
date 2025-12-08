@@ -62,19 +62,28 @@ public class PrestigeManager : MonoBehaviour
         if (letterToPlate == null)
             return;
         
-        // Reset all letter currencies
+        // Reset all letter currencies to 0 (including A)
         ResetAllCurrencies();
         
         // Reset all upgrades for all letters
         ResetAllUpgrades();
         
+        // Reset ALL prestige multipliers to 1.0 first (clear any previous plating)
+        ResetAllPrestigeMultipliers();
+        
         // Lock all letters except 'A'
         LockAllLettersExceptA();
+        
+        // Ensure letter A amount is 0 after reset
+        if (currencyManager.allLetters.ContainsKey("A"))
+        {
+            currencyManager.allLetters["A"].amount = 0;
+        }
         
         // Apply silver plating to the next letter
         var letterData = currencyManager.allLetters[letterToPlate];
         letterData.isSilver = true;
-        letterData.prestigeMultiplier *= silverMultiplier;
+        letterData.prestigeMultiplier = silverMultiplier; // Set to silver multiplier (not multiply)
         silverPlatedCount++;
         
         // Update UI AFTER applying plating so colors are correct
@@ -149,37 +158,30 @@ public class PrestigeManager : MonoBehaviour
         if (letterToPlate == null)
             return;
         
-        // Reset all letter currencies
+        // Reset all letter currencies to 0 (including A)
         ResetAllCurrencies();
         
         // Reset all upgrades for all letters
         ResetAllUpgrades();
         
+        // Reset ALL prestige multipliers to 1.0 first (clear any previous plating)
+        ResetAllPrestigeMultipliers();
+        
         // Lock all letters except 'A'
         LockAllLettersExceptA();
+        
+        // Ensure letter A amount is 0 after reset
+        if (currencyManager.allLetters.ContainsKey("A"))
+        {
+            currencyManager.allLetters["A"].amount = 0;
+        }
         
         // Apply gold plating to the next letter (overrides silver)
         var letterData = currencyManager.allLetters[letterToPlate];
         
-        // If it was silver, decrement silver count
-        if (letterData.isSilver)
-        {
-            silverPlatedCount--;
-        }
-        
         letterData.isSilver = false; // Gold replaces silver
         letterData.isGold = true;
-        
-        // Remove silver multiplier and apply gold multiplier
-        // If it was silver, divide by silver multiplier first, then multiply by gold
-        if (letterData.prestigeMultiplier >= silverMultiplier)
-        {
-            letterData.prestigeMultiplier = (letterData.prestigeMultiplier / silverMultiplier) * goldMultiplier;
-        }
-        else
-        {
-            letterData.prestigeMultiplier = goldMultiplier;
-        }
+        letterData.prestigeMultiplier = goldMultiplier; // Set to gold multiplier directly
         
         goldPlatedCount++;
         
@@ -229,10 +231,49 @@ public class PrestigeManager : MonoBehaviour
     // Reset all letter currencies to 0
     private void ResetAllCurrencies()
     {
+        if (currencyManager == null || currencyManager.allLetters == null)
+            return;
+        
         foreach (var pair in currencyManager.allLetters)
         {
             pair.Value.amount = 0;
         }
+    }
+    
+    // Reset all prestige multipliers to 1.0 and clear plating status
+    private void ResetAllPrestigeMultipliers()
+    {
+        if (currencyManager == null || currencyManager.allLetters == null)
+            return;
+        
+        foreach (var pair in currencyManager.allLetters)
+        {
+            pair.Value.prestigeMultiplier = 1.0;
+            pair.Value.isSilver = false;
+            pair.Value.isGold = false;
+        }
+        
+        silverPlatedCount = 0;
+        goldPlatedCount = 0;
+    }
+    
+    // Public method to reset all prestige data (called on full game reset)
+    public void ResetAllPrestigeData()
+    {
+        ResetAllPrestigeMultipliers();
+        
+        // Also clear prestige PlayerPrefs
+        foreach (var pair in currencyManager.allLetters)
+        {
+            string letter = pair.Key;
+            PlayerPrefs.DeleteKey($"Prestige_Silver_{letter}");
+            PlayerPrefs.DeleteKey($"Prestige_Gold_{letter}");
+            PlayerPrefs.DeleteKey($"Prestige_Multiplier_{letter}");
+        }
+        
+        PlayerPrefs.DeleteKey("Prestige_SilverCount");
+        PlayerPrefs.DeleteKey("Prestige_GoldCount");
+        PlayerPrefs.Save();
     }
     
     // Get total number of unlocked letters
