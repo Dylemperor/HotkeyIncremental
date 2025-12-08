@@ -10969,6 +10969,13 @@ MonoBehaviour:
     Hotkeys work even when viewing a different letter
 
 
+    Prestige:
+
+    - Silver
+    = 2x Production
+
+    - Gold = 5x Production
+
 
 '
   m_isRightToLeft: 0
