@@ -17,7 +17,7 @@ public class CurrencyData
     public CurrencyData(string letter)
     {
         this.letter = letter;
-        amount = 10000000000000000;
+        amount = 0;
         InitializeDefaultUpgrades();
     }
 
