@@ -71,16 +71,16 @@ public class CurrencyData
         
         double[] nextExpMultipliers = isLetterA
             ? new double[] {5, 7.5, 10, 20, 50}
-            : new double[] {6, 9, 12, 25, 60};
+            : new double[] {7.5, 10, 15, 25, 60};
         
         upgrades["nextLetterBaseProduction"] = new UpgradeData(
             "Next Letter Base Production", 1, 0, 100000000000, 
             new int[] {5, 10, 20, 25, 50}, nextBaseMultipliers, true, 1);
         upgrades["nextLetterMulti"] = new UpgradeData(
-            "Next Letter Multi", 1, 0, 500000000000000, 
+            "Next Letter Multi", 1, 0, 1000000000000000, 
             new int[] { 5, 10, 20, 25, 50}, nextMultiMultipliers, true, 0.5);
         upgrades["nextLetterExponent"] = new UpgradeData(
-            "Next Letter Exponent", 1, 0, 500000000000000000, 
+            "Next Letter Exponent", 1, 0, 1000000000000000000, 
             new int[] { 5, 10, 20, 25, 50}, nextExpMultipliers, true, 0.1);
     }
 
