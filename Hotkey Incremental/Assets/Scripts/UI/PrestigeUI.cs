@@ -18,6 +18,12 @@ public class PrestigeUI : MonoBehaviour
     public TMP_Text goldButtonText;
     public Image goldButtonImage;
     
+    [Header("Number Prestige Button")]
+    public Button numberPrestigeButton;
+    public TMP_Text numberButtonText;
+    public Image numberButtonImage;
+    public NumberPrestigeManager numberPrestigeManager;
+    
     [Header("Update Settings")]
     public float updateInterval = 0.1f;
     
@@ -27,11 +33,13 @@ public class PrestigeUI : MonoBehaviour
     
     private void Start()
     {
-        // Initially hide both buttons
+        // Initially hide all buttons
         if (silverPrestigeButton != null)
             silverPrestigeButton.gameObject.SetActive(false);
         if (goldPrestigeButton != null)
             goldPrestigeButton.gameObject.SetActive(false);
+        if (numberPrestigeButton != null)
+            numberPrestigeButton.gameObject.SetActive(false);
         
         // Set up button colors
         SetupButtonColors();
@@ -82,6 +90,7 @@ public class PrestigeUI : MonoBehaviour
         {
             UpdateSilverButton();
             UpdateGoldButton();
+            UpdateNumberButton();
             yield return new WaitForSeconds(updateInterval);
         }
     }
@@ -98,9 +107,7 @@ public class PrestigeUI : MonoBehaviour
         
         if (canPrestige && silverButtonText != null)
         {
-            int plated = prestigeManager.GetSilverPlatedCount();
-            int total = GetTotalUnlockedLetters();
-            silverButtonText.text = $"Silver Reset\n({plated}/{total} Plated)";
+            silverButtonText.text = "Silver Reset";
         }
     }
     
@@ -116,9 +123,7 @@ public class PrestigeUI : MonoBehaviour
         
         if (canPrestige && goldButtonText != null)
         {
-            int plated = prestigeManager.GetGoldPlatedCount();
-            int total = GetTotalUnlockedLetters();
-            goldButtonText.text = $"Gold Reset\n({plated}/{total} Plated)";
+            goldButtonText.text = "Gold Reset";
         }
     }
     
@@ -159,6 +164,39 @@ public class PrestigeUI : MonoBehaviour
             
             // Notify other systems that prestige occurred
             Debug.Log("Gold Prestige performed!");
+        }
+    }
+    
+    private void UpdateNumberButton()
+    {
+        if (numberPrestigeButton == null || numberPrestigeManager == null)
+            return;
+        
+        bool canPrestige = numberPrestigeManager.CanPerformNumberReset();
+        
+        // Show button if Number prestige is available
+        numberPrestigeButton.gameObject.SetActive(canPrestige);
+        
+        if (canPrestige && numberButtonText != null)
+        {
+            numberButtonText.text = "Number Reset";
+        }
+    }
+    
+    public void OnNumberPrestigeClick()
+    {
+        if (numberPrestigeManager != null && numberPrestigeManager.CanPerformNumberReset())
+        {
+            numberPrestigeManager.PerformNumberReset();
+            numberPrestigeManager.SaveNumberPrestigeData();
+            
+            // Also save prestige data since it resets gold plates
+            if (prestigeManager != null)
+            {
+                prestigeManager.SavePrestigeData();
+            }
+            
+            Debug.Log("Number Prestige performed!");
         }
     }
 }

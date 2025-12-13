@@ -70,8 +70,8 @@ public class CurrencyData
             : new double[] {4.2, 6, 9, 12, 25};
         
         double[] nextExpMultipliers = isLetterA
-            ? new double[] {5, 7.5, 10, 20, 50}
-            : new double[] {7.5, 10, 15, 25, 60};
+            ? new double[] {7.5, 10, 25, 50, 100}
+            : new double[] {10, 15, 40, 60, 115};
         
         upgrades["nextLetterBaseProduction"] = new UpgradeData(
             "Next Letter Base Production", 1, 0, 100000000000, 
