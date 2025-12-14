@@ -87,18 +87,18 @@ public class PrestigeManager : MonoBehaviour
         // Restore all previously plated letters' multipliers
         foreach (var pair in savedPlating)
         {
-            var letterData = currencyManager.allLetters[pair.Key];
+            var existingLetterData = currencyManager.allLetters[pair.Key];
             if (pair.Value.isGold)
             {
-                letterData.isGold = true;
-                letterData.isSilver = false;
-                letterData.prestigeMultiplier = goldMultiplier;
+                existingLetterData.isGold = true;
+                existingLetterData.isSilver = false;
+                existingLetterData.prestigeMultiplier = goldMultiplier;
             }
             else if (pair.Value.isSilver)
             {
-                letterData.isSilver = true;
-                letterData.isGold = false;
-                letterData.prestigeMultiplier = silverMultiplier;
+                existingLetterData.isSilver = true;
+                existingLetterData.isGold = false;
+                existingLetterData.prestigeMultiplier = silverMultiplier;
             }
         }
         
@@ -200,26 +200,26 @@ public class PrestigeManager : MonoBehaviour
         // Ensure letter A amount is 0 after reset
         if (currencyManager.allLetters.ContainsKey("A"))
         {
-            currencyManager.allLetters["A"].amount = 0;
+            currencyManager.allLetters["A"].amount = 100000000000000000;
         }
         
         // Restore all previously plated letters' multipliers
         // Gold plates are preserved, silver plates that aren't being converted stay silver
         foreach (var pair in savedPlating)
         {
-            var letterData = currencyManager.allLetters[pair.Key];
+            var existingLetterData = currencyManager.allLetters[pair.Key];
             if (pair.Value.isGold)
             {
-                letterData.isGold = true;
-                letterData.isSilver = false;
-                letterData.prestigeMultiplier = goldMultiplier;
+                existingLetterData.isGold = true;
+                existingLetterData.isSilver = false;
+                existingLetterData.prestigeMultiplier = goldMultiplier;
             }
             else if (pair.Value.isSilver && pair.Key != letterToPlate)
             {
                 // Keep silver plating for letters not being converted to gold
-                letterData.isSilver = true;
-                letterData.isGold = false;
-                letterData.prestigeMultiplier = silverMultiplier;
+                existingLetterData.isSilver = true;
+                existingLetterData.isGold = false;
+                existingLetterData.prestigeMultiplier = silverMultiplier;
             }
         }
         

@@ -10,6 +10,7 @@ public class MainViewController : MonoBehaviour
     public ProductionManager productionManager;
     public UpgradeUI upgradeUI;
     public LetterPageController letterPageController;
+    public NumberView numberView;
     
     [Header("Update Settings")]
     [Tooltip("How often to update the main view display (in seconds). Lower = faster updates.")]
@@ -87,6 +88,15 @@ public class MainViewController : MonoBehaviour
         if (letterPageController != null)
         {
             letterPageController.LoadLetter(letter);
+        }
+    }
+    
+    // Method to switch to a specific number view
+    public void SwitchToNumber(int number)
+    {
+        if (numberView != null)
+        {
+            numberView.LoadNumber(number);
         }
     }
 }

@@ -8,120 +8,109 @@ public class NumberView : MonoBehaviour
 {
     public NumberManager numberManager;
     public NumberPrestigeManager numberPrestigeManager;
+    public UIManager uiManager;
     
-    [Header("Number Tabs")]
-    public Button[] numberTabButtons; // 9 buttons for numbers 1-9
-    public GameObject[] numberTabPanels; // 9 panels, one for each number
+    [Header("Number Selector Buttons")]
+    public Button[] numberButtons; // 9 buttons for numbers 1-9 (similar to LetterSelector)
     
     [Header("Current Number Display")]
-    public TMP_Text currentNumberDisplayText;
+    public TMP_Text currentNumberDisplayText; // Shows "5.23 1s" format
     
     [Header("Converter")]
     public Button convertButton;
     public TMP_Text convertButtonText;
     
     [Header("Upgrades")]
-    public TMP_Text[] upgradeTexts; // 6 upgrade displays per number
-    public Button[] upgradeButtons; // 6 upgrade buttons per number
+    public TMP_Text[] upgradeTexts; // 6 upgrade displays
+    public Button[] upgradeButtons; // 6 upgrade buttons
     
     [Header("Update Settings")]
     public float updateInterval = 0.1f;
     
-    private int currentNumberTab = 1; // Currently selected number (1-9)
+    private int currentNumber = 1; // Currently selected number (1-9)
     
     private void Start()
     {
-        // Initially hide all panels
-        for (int i = 0; i < numberTabPanels.Length; i++)
-        {
-            if (numberTabPanels[i] != null)
-                numberTabPanels[i].SetActive(false);
-        }
-        
-        // Show first number tab if unlocked
-        ShowNumberTab(1);
-        
-        // Setup tab buttons
-        for (int i = 0; i < numberTabButtons.Length && i < 9; i++)
+        // Setup number selector buttons
+        for (int i = 0; i < numberButtons.Length && i < 9; i++)
         {
             int number = i + 1;
-            if (numberTabButtons[i] != null)
+            if (numberButtons[i] != null)
             {
-                numberTabButtons[i].onClick.AddListener(() => ShowNumberTab(number));
-                numberTabButtons[i].gameObject.SetActive(false); // Hidden until unlocked
+                int num = number; // Capture for lambda
+                numberButtons[i].onClick.AddListener(() => LoadNumber(num));
+                numberButtons[i].gameObject.SetActive(false); // Hidden until unlocked
             }
         }
+        
+        // Initialize with first number, but don't switch views on startup
+        currentNumber = 1;
+        UpdateNumberInfo();
         
         StartCoroutine(UpdateNumberView());
     }
     
-    public void ShowNumberTab(int number)
+    public void LoadNumber(int number)
     {
         if (number < 1 || number > 9)
             return;
             
-        // Hide all panels
-        for (int i = 0; i < numberTabPanels.Length; i++)
+        // Make sure we're on the number page
+        if (uiManager != null)
         {
-            if (numberTabPanels[i] != null)
-                numberTabPanels[i].SetActive(false);
+            uiManager.ShowNumberPage();
         }
-        
-        // Show selected panel
-        if (number - 1 < numberTabPanels.Length && numberTabPanels[number - 1] != null)
-        {
-            numberTabPanels[number - 1].SetActive(true);
-        }
-        
-        currentNumberTab = number;
-        RefreshCurrentNumberUI();
+            
+        currentNumber = number;
+        UpdateNumberInfo();
     }
     
     private IEnumerator UpdateNumberView()
     {
         while (true)
         {
-            UpdateTabVisibility();
-            RefreshCurrentNumberUI();
+            UpdateNumberButtonVisibility();
+            UpdateNumberInfo();
             yield return new WaitForSeconds(updateInterval);
         }
     }
     
-    private void UpdateTabVisibility()
+    private void UpdateNumberButtonVisibility()
     {
-        for (int i = 0; i < numberTabButtons.Length && i < 9; i++)
+        for (int i = 0; i < numberButtons.Length && i < 9; i++)
         {
             int number = i + 1;
-            if (numberTabButtons[i] != null && numberManager != null)
+            if (numberButtons[i] != null && numberManager != null)
             {
-                bool hasCurrency = numberManager.GetNumberAmount(number) > 0 || numberManager.allNumbers[number].isUnlocked;
-                numberTabButtons[i].gameObject.SetActive(hasCurrency);
+                bool hasCurrency = numberManager.GetNumberAmount(number) > 0 || 
+                                  (numberManager.allNumbers.ContainsKey(number) && numberManager.allNumbers[number].isUnlocked);
+                numberButtons[i].gameObject.SetActive(hasCurrency);
             }
         }
     }
     
-    private void RefreshCurrentNumberUI()
+    private void UpdateNumberInfo()
     {
-        if (numberManager == null || !numberManager.allNumbers.ContainsKey(currentNumberTab))
+        if (numberManager == null || !numberManager.allNumbers.ContainsKey(currentNumber))
             return;
             
-        var numberData = numberManager.allNumbers[currentNumberTab];
+        var numberData = numberManager.allNumbers[currentNumber];
         
-        // Update number display
+        // Update number currency display at top
         if (currentNumberDisplayText != null)
         {
-            currentNumberDisplayText.text = $"{NumberFormatter.Format(numberData.amount)} {currentNumberTab}s";
+            currentNumberDisplayText.text = $"{NumberFormatter.Format(numberData.amount)} {currentNumber}s";
         }
         
         // Update converter button
         if (convertButton != null && convertButtonText != null)
         {
-            bool canConvert = currentNumberTab < 9 && numberData.amount >= 10;
+            bool canConvert = currentNumber < 9 && numberData.amount >= 10;
             convertButton.interactable = canConvert;
             
-            if (currentNumberTab < 9)
+            if (currentNumber < 9)
             {
-                convertButtonText.text = $"Convert 10 {currentNumberTab}s → 1 {currentNumberTab + 1}";
+                convertButtonText.text = $"Convert 10 {currentNumber}s → 1 {currentNumber + 1}";
             }
             else
             {
@@ -131,7 +120,7 @@ public class NumberView : MonoBehaviour
         }
         
         // Update upgrades
-        RefreshUpgradeUI(numberData, currentNumberTab);
+        RefreshUpgradeUI(numberData, currentNumber);
     }
     
     private void RefreshUpgradeUI(NumberData numberData, int number)
@@ -148,10 +137,11 @@ public class NumberView : MonoBehaviour
                 string upgradeKey = upgradeKeys[i];
                 var upgrade = numberData.upgrades[upgradeKey];
                 
+                bool isPurchased = upgrade.level > 1;
+                
                 // Update upgrade text
                 if (upgradeTexts[i] != null)
                 {
-                    bool isPurchased = upgrade.level > 1;
                     string statusText = isPurchased ? "✓ Purchased" : $"Cost: {upgrade.cost} {number}s";
                     upgradeTexts[i].text = $"{upgrade.name}\n{statusText}";
                 }
@@ -177,22 +167,22 @@ public class NumberView : MonoBehaviour
     
     public void OnConvertButtonClick()
     {
-        if (numberManager != null && currentNumberTab < 9)
+        if (numberManager != null && currentNumber < 9)
         {
-            bool success = numberManager.ConvertNumber(currentNumberTab, currentNumberTab + 1);
+            bool success = numberManager.ConvertNumber(currentNumber, currentNumber + 1);
             if (success)
             {
-                RefreshCurrentNumberUI();
+                UpdateNumberInfo();
             }
         }
     }
     
     public void OnUpgradeButtonClick(int upgradeIndex)
     {
-        if (numberManager == null || !numberManager.allNumbers.ContainsKey(currentNumberTab))
+        if (numberManager == null || !numberManager.allNumbers.ContainsKey(currentNumber))
             return;
             
-        var numberData = numberManager.allNumbers[currentNumberTab];
+        var numberData = numberManager.allNumbers[currentNumber];
         List<string> upgradeKeys = new List<string>(numberData.upgrades.Keys);
         
         if (upgradeIndex >= 0 && upgradeIndex < upgradeKeys.Count)
@@ -211,7 +201,7 @@ public class NumberView : MonoBehaviour
                     // Automation upgrade just needs to be purchased, enabling is separate
                 }
                 
-                RefreshCurrentNumberUI();
+                UpdateNumberInfo();
             }
         }
     }

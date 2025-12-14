@@ -154,7 +154,7 @@ public class AutomationView : MonoBehaviour
         }
     }
     
-    private void OnSpeedUpgradeClicked()
+    public void OnSpeedUpgradeClicked()
     {
         if (numberManager != null)
         {
