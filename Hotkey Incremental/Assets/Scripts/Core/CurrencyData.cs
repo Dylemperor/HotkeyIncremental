@@ -29,11 +29,11 @@ public class CurrencyData
         
         // BaseProduction: adds +1 to base production per level
         double[] baseProductionMultipliers = isLetterA 
-            ? new double[] { 1.08, 1.1, 1.125, 1.15, 1.2, 2, 10 } // Original for A
-            : new double[] { 1.12, 1.15, 1.18, 1.25, 1.35, 2.3, 12 }; // Harsher for B-Z
+            ? new double[] { 1.08, 1.1, 1.125, 1.15, 1.2, 10 } // Original for A
+            : new double[] { 1.12, 1.15, 1.18, 1.25, 1.35, 12 }; // Harsher for B-Z
         
-        upgrades["BaseProduction"] = new UpgradeData("Base Production", 1, 1, 25, 
-            new int[] { 5, 25, 75, 125, 250, 500, 1000 }, // Phase thresholds: level 5, level 25, etc.
+        upgrades["BaseProduction"] = new UpgradeData("Base Production", 1, 1, 10, 
+            new int[] { 10, 25, 75, 125, 250, 500 }, // Phase thresholds: level 5, level 25, etc.
             baseProductionMultipliers, // Multipliers adjusted for letter position
             true, 1.0); // Additive effect, +1 per level
         
@@ -43,18 +43,18 @@ public class CurrencyData
             : new double[] { 1.25, 1.3, 1.4, 1.55, 3.0, 12 }; // Harsher for B-Z
         
         upgrades["Multiplier"] = new UpgradeData("Multiplier", 1, 1, 500, 
-            new int[] { 5, 15, 50, 100, 500, 1000 }, // Phase thresholds
+            new int[] { 5, 25, 50, 100, 500, 1000 }, // Phase thresholds
             multiplierMultipliers, // Multipliers adjusted for letter position
             true, 0.5); // Additive effect, +0.5 per level 
         
         // Exponent: adds +0.1 to exponent per level
         double[] exponentMultipliers = isLetterA
-            ? new double[] { 2.5, 2.75, 3, 3.5, 5, 10, 20 } // Original for A
-            : new double[] { 2.9, 3.2, 3.6, 4.2, 6, 12, 25 }; // Harsher for B-Z
+            ? new double[] { 2.5, 2.75, 3, 3.5, 5, 30 } // Original for A
+            : new double[] { 2.9, 3.1, 3.6, 4.2, 6, 40 }; // Harsher for B-Z
         
         upgrades["Exponent"] = new UpgradeData(
             "Exponent", 1, 1, 10000, 
-            new int[] { 5, 10, 20 , 50, 100, 500, 1000 }, 
+            new int[] { 5, 10, 20 , 50, 100, 500}, 
             exponentMultipliers, // Multipliers adjusted for letter position
             true, 0.1); // Additive effect, +0.1 per level
         
@@ -71,17 +71,17 @@ public class CurrencyData
         
         double[] nextExpMultipliers = isLetterA
             ? new double[] {7.5, 10, 25, 50, 100}
-            : new double[] {10, 15, 40, 60, 115};
+            : new double[] {10, 15, 40, 60, 150};
         
         upgrades["nextLetterBaseProduction"] = new UpgradeData(
             "Next Letter Base Production", 1, 0, 100000000000, 
-            new int[] {5, 10, 20, 25, 50}, nextBaseMultipliers, true, 1);
+            new int[] { 10, 20, 25, 50, 100}, nextBaseMultipliers, true, 1);
         upgrades["nextLetterMulti"] = new UpgradeData(
             "Next Letter Multi", 1, 0, 1000000000000000, 
-            new int[] { 5, 10, 20, 25, 50}, nextMultiMultipliers, true, 0.5);
+            new int[] { 10, 20, 25, 50, 100}, nextMultiMultipliers, true, 0.5);
         upgrades["nextLetterExponent"] = new UpgradeData(
             "Next Letter Exponent", 1, 0, 1000000000000000000, 
-            new int[] { 5, 10, 20, 25, 50}, nextExpMultipliers, true, 0.1);
+            new int[] { 10, 20, 25, 50, 100}, nextExpMultipliers, true, 0.1);
     }
 
     public double GetMultiplier()
