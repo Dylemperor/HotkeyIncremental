@@ -11,6 +11,10 @@ public class MainViewController : MonoBehaviour
     public UpgradeUI upgradeUI;
     public LetterPageController letterPageController;
     public NumberView numberView;
+    public NumberManager numberManager;
+    
+    [Header("UI Elements")]
+    public GameObject automationButton; // Button to navigate to automation page
     
     [Header("Update Settings")]
     [Tooltip("How often to update the main view display (in seconds). Lower = faster updates.")]
@@ -24,6 +28,9 @@ public class MainViewController : MonoBehaviour
             updateInterval = PlayerPrefs.GetFloat("MainViewUpdateInterval", 0.1f);
         }
         
+        // Set initial automation button visibility
+        UpdateAutomationButtonVisibility();
+        
         StartCoroutine(RefreshMainLetterUI());
     }
 
@@ -33,6 +40,7 @@ public class MainViewController : MonoBehaviour
         {
             UpdateMainLetterDisplay();
             UpdateProductionDisplay();
+            UpdateAutomationButtonVisibility();
             if (upgradeUI != null)
                 upgradeUI.UpdateAllButtons();
             yield return new WaitForSeconds(updateInterval);
@@ -74,6 +82,16 @@ public class MainViewController : MonoBehaviour
             {
                 productionRateText.text = "Production: 0/s";
             }
+        }
+    }
+    
+    void UpdateAutomationButtonVisibility()
+    {
+        if (automationButton != null && numberManager != null)
+        {
+            // Show automation button if either First Half or Second Half automation is unlocked
+            bool hasAutomation = numberManager.HasAutomationUpgrade(2) || numberManager.HasAutomationUpgrade(3);
+            automationButton.SetActive(hasAutomation);
         }
     }
     
