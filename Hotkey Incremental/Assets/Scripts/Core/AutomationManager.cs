@@ -22,6 +22,22 @@ public class AutomationManager : MonoBehaviour
     
     private void Start()
     {
+        // Validate required references
+        if (numberManager == null)
+        {
+            Debug.LogError("AutomationManager: NumberManager is not assigned!");
+            return;
+        }
+        if (currencyManager == null)
+        {
+            Debug.LogError("AutomationManager: CurrencyManager is not assigned!");
+            return;
+        }
+        if (upgradeUI == null)
+        {
+            Debug.LogWarning("AutomationManager: UpgradeUI is not assigned. Automation may not work correctly.");
+        }
+        
         // Load automation states
         LoadAutomationData();
         
@@ -48,6 +64,12 @@ public class AutomationManager : MonoBehaviour
     
     public void SetFirstHalfEnabled(bool enabled)
     {
+        if (numberManager == null)
+        {
+            Debug.LogWarning("NumberManager is null in AutomationManager!");
+            return;
+        }
+        
         if (enabled && !numberManager.HasAutomationUpgrade(2))
         {
             Debug.LogWarning("First Half Automation upgrade not purchased!");
@@ -70,6 +92,12 @@ public class AutomationManager : MonoBehaviour
     
     public void SetSecondHalfEnabled(bool enabled)
     {
+        if (numberManager == null)
+        {
+            Debug.LogWarning("NumberManager is null in AutomationManager!");
+            return;
+        }
+        
         if (enabled && !numberManager.HasAutomationUpgrade(3))
         {
             Debug.LogWarning("Second Half Automation upgrade not purchased!");
@@ -128,19 +156,51 @@ public class AutomationManager : MonoBehaviour
     
     private IEnumerator AutomationLoop(string[] letters)
     {
+        if (numberManager == null || currencyManager == null || upgradeUI == null)
+        {
+            Debug.LogError("AutomationManager: Cannot start automation loop - required managers are null");
+            yield break;
+        }
+        
+        if (letters == null || letters.Length == 0)
+        {
+            Debug.LogWarning("AutomationManager: No letters provided for automation loop");
+            yield break;
+        }
+            
         while (true)
         {
             // Wait for the automation speed interval
             float waitTime = (float)numberManager.automationSpeed;
+            
+            // Validate wait time to prevent infinite loops or negative waits
+            if (waitTime <= 0)
+            {
+                Debug.LogWarning($"AutomationManager: Invalid automation speed {waitTime}, using minimum 0.5s");
+                waitTime = 0.5f;
+            }
+            
             yield return new WaitForSeconds(waitTime);
             
             // Purchase upgrades for each letter in the range
             foreach (string letter in letters)
             {
+                if (string.IsNullOrEmpty(letter))
+                {
+                    Debug.LogWarning("AutomationManager: Encountered null or empty letter in automation loop");
+                    continue;
+                }
+                
+                if (currencyManager.allLetters == null)
+                {
+                    Debug.LogError("AutomationManager: CurrencyManager.allLetters is null");
+                    yield break;
+                }
+                
                 if (currencyManager.allLetters.ContainsKey(letter))
                 {
                     var letterData = currencyManager.allLetters[letter];
-                    if (letterData.isUnlocked)
+                    if (letterData != null && letterData.isUnlocked)
                     {
                         // Use UpgradeUI's MaxAllUpgradesForLetter method
                         if (upgradeUI != null)

@@ -17,61 +17,61 @@ public class UIManager : MonoBehaviour
 
     public void ShowMainView()
     {
-        mainView.SetActive(true);
-        letterPage.SetActive(false);
-        numberPage.SetActive(false);
-        automationPage.SetActive(false);
-        infoView.SetActive(false);
-        settingsView.SetActive(false);
+        if (mainView != null) mainView.SetActive(true);
+        if (letterPage != null) letterPage.SetActive(false);
+        if (numberPage != null) numberPage.SetActive(false);
+        if (automationPage != null) automationPage.SetActive(false);
+        if (infoView != null) infoView.SetActive(false);
+        if (settingsView != null) settingsView.SetActive(false);
     }
 
     public void ShowLetterPage()
     {
-        mainView.SetActive(false);
-        letterPage.SetActive(true);
-        numberPage.SetActive(false);
-        automationPage.SetActive(false);
-        infoView.SetActive(false);
-        settingsView.SetActive(false);
+        if (mainView != null) mainView.SetActive(false);
+        if (letterPage != null) letterPage.SetActive(true);
+        if (numberPage != null) numberPage.SetActive(false);
+        if (automationPage != null) automationPage.SetActive(false);
+        if (infoView != null) infoView.SetActive(false);
+        if (settingsView != null) settingsView.SetActive(false);
     }
     
     public void ShowNumberPage()
     {
-        mainView.SetActive(false);
-        letterPage.SetActive(false);
-        numberPage.SetActive(true);
-        automationPage.SetActive(false);
-        infoView.SetActive(false);
-        settingsView.SetActive(false);
+        if (mainView != null) mainView.SetActive(false);
+        if (letterPage != null) letterPage.SetActive(false);
+        if (numberPage != null) numberPage.SetActive(true);
+        if (automationPage != null) automationPage.SetActive(false);
+        if (infoView != null) infoView.SetActive(false);
+        if (settingsView != null) settingsView.SetActive(false);
     }
     
     public void ShowAutomationPage()
     {
-        mainView.SetActive(false);
-        letterPage.SetActive(false);
-        numberPage.SetActive(false);
-        automationPage.SetActive(true);
-        infoView.SetActive(false);
-        settingsView.SetActive(false);
+        if (mainView != null) mainView.SetActive(false);
+        if (letterPage != null) letterPage.SetActive(false);
+        if (numberPage != null) numberPage.SetActive(false);
+        if (automationPage != null) automationPage.SetActive(true);
+        if (infoView != null) infoView.SetActive(false);
+        if (settingsView != null) settingsView.SetActive(false);
     }
     
     public void ShowInfoView()
     {
-        mainView.SetActive(false);
-        letterPage.SetActive(false);
-        numberPage.SetActive(false);
-        automationPage.SetActive(false);
-        infoView.SetActive(true);
-        settingsView.SetActive(false);
+        if (mainView != null) mainView.SetActive(false);
+        if (letterPage != null) letterPage.SetActive(false);
+        if (numberPage != null) numberPage.SetActive(false);
+        if (automationPage != null) automationPage.SetActive(false);
+        if (infoView != null) infoView.SetActive(true);
+        if (settingsView != null) settingsView.SetActive(false);
     }
     
     public void ShowSettingsView()
     {
-        mainView.SetActive(false);
-        letterPage.SetActive(false);
-        numberPage.SetActive(false);
-        automationPage.SetActive(false);
-        infoView.SetActive(false);
-        settingsView.SetActive(true);
+        if (mainView != null) mainView.SetActive(false);
+        if (letterPage != null) letterPage.SetActive(false);
+        if (numberPage != null) numberPage.SetActive(false);
+        if (automationPage != null) automationPage.SetActive(false);
+        if (infoView != null) infoView.SetActive(false);
+        if (settingsView != null) settingsView.SetActive(true);
     }
 }

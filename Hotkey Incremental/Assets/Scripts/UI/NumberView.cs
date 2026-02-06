@@ -31,8 +31,24 @@ public class NumberView : MonoBehaviour
     
     private void Start()
     {
+        // Validate required references
+        if (numberManager == null)
+        {
+            Debug.LogError("NumberView: NumberManager is not assigned!");
+            return;
+        }
+        
         // Setup number selector buttons
-        for (int i = 0; i < numberButtons.Length && i < 9; i++)
+        if (numberButtons == null)
+        {
+            Debug.LogWarning("NumberView: NumberButtons array is not assigned!");
+            return;
+        }
+        
+        // Ensure we don't exceed array bounds
+        int maxButtons = Mathf.Min(numberButtons.Length, 9);
+        
+        for (int i = 0; i < maxButtons; i++)
         {
             int number = i + 1;
             if (numberButtons[i] != null)
@@ -52,8 +68,24 @@ public class NumberView : MonoBehaviour
     
     public void LoadNumber(int number)
     {
+        // Validate number range
         if (number < 1 || number > 9)
+        {
+            Debug.LogWarning($"NumberView: Invalid number {number}. Must be between 1 and 9.");
             return;
+        }
+        
+        if (numberManager == null)
+        {
+            Debug.LogError("NumberView: Cannot load number - NumberManager is null");
+            return;
+        }
+        
+        if (!numberManager.allNumbers.ContainsKey(number))
+        {
+            Debug.LogWarning($"NumberView: Number {number} not found in NumberManager");
+            return;
+        }
             
         // Make sure we're on the number page
         if (uiManager != null)
@@ -77,10 +109,16 @@ public class NumberView : MonoBehaviour
     
     private void UpdateNumberButtonVisibility()
     {
-        for (int i = 0; i < numberButtons.Length && i < 9; i++)
+        if (numberButtons == null || numberManager == null)
+            return;
+            
+        // Ensure we don't exceed array bounds or valid number range
+        int maxButtons = Mathf.Min(numberButtons.Length, 9);
+        
+        for (int i = 0; i < maxButtons; i++)
         {
             int number = i + 1;
-            if (numberButtons[i] != null && numberManager != null)
+            if (numberButtons[i] != null && number >= 1 && number <= 9)
             {
                 bool hasCurrency = numberManager.GetNumberAmount(number) > 0 || 
                                   (numberManager.allNumbers.ContainsKey(number) && numberManager.allNumbers[number].isUnlocked);
@@ -128,14 +166,36 @@ public class NumberView : MonoBehaviour
         if (upgradeTexts == null || upgradeButtons == null)
             return;
             
+        if (numberData == null || numberData.upgrades == null)
+        {
+            Debug.LogWarning("NumberView: Invalid NumberData or upgrades dictionary");
+            return;
+        }
+            
         List<string> upgradeKeys = new List<string>(numberData.upgrades.Keys);
         
-        for (int i = 0; i < upgradeTexts.Length && i < upgradeButtons.Length; i++)
+        // Ensure we don't exceed array bounds
+        int maxSlots = Mathf.Min(upgradeTexts.Length, upgradeButtons.Length);
+        
+        for (int i = 0; i < maxSlots; i++)
         {
             if (i < upgradeKeys.Count)
             {
                 string upgradeKey = upgradeKeys[i];
+                
+                if (!numberData.upgrades.ContainsKey(upgradeKey))
+                {
+                    Debug.LogWarning($"NumberView: Upgrade key '{upgradeKey}' missing from upgrades dictionary");
+                    continue;
+                }
+                
                 var upgrade = numberData.upgrades[upgradeKey];
+                
+                if (upgrade == null)
+                {
+                    Debug.LogWarning($"NumberView: Upgrade data is null for key '{upgradeKey}'");
+                    continue;
+                }
                 
                 bool isPurchased = upgrade.level > 1;
                 
@@ -167,42 +227,90 @@ public class NumberView : MonoBehaviour
     
     public void OnConvertButtonClick()
     {
-        if (numberManager != null && currentNumber < 9)
+        if (numberManager == null)
         {
-            bool success = numberManager.ConvertNumber(currentNumber, currentNumber + 1);
-            if (success)
-            {
-                UpdateNumberInfo();
-            }
+            Debug.LogWarning("NumberView: Cannot convert - NumberManager is null");
+            return;
+        }
+        
+        if (currentNumber >= 9)
+        {
+            Debug.Log("NumberView: Cannot convert - already at maximum number (9)");
+            return;
+        }
+        
+        if (!numberManager.allNumbers.ContainsKey(currentNumber))
+        {
+            Debug.LogWarning($"NumberView: Current number {currentNumber} not found");
+            return;
+        }
+        
+        bool success = numberManager.ConvertNumber(currentNumber, currentNumber + 1);
+        if (success)
+        {
+            UpdateNumberInfo();
+        }
+        else
+        {
+            Debug.Log($"NumberView: Conversion failed - insufficient amount (need 10 {currentNumber}s)");
         }
     }
     
     public void OnUpgradeButtonClick(int upgradeIndex)
     {
-        if (numberManager == null || !numberManager.allNumbers.ContainsKey(currentNumber))
+        if (numberManager == null)
+        {
+            Debug.LogWarning("NumberView: Cannot purchase upgrade - NumberManager is null");
             return;
+        }
+        
+        if (!numberManager.allNumbers.ContainsKey(currentNumber))
+        {
+            Debug.LogWarning($"NumberView: Number {currentNumber} not found in NumberManager");
+            return;
+        }
             
         var numberData = numberManager.allNumbers[currentNumber];
         List<string> upgradeKeys = new List<string>(numberData.upgrades.Keys);
         
-        if (upgradeIndex >= 0 && upgradeIndex < upgradeKeys.Count)
+        // Validate upgrade index
+        if (upgradeIndex < 0 || upgradeIndex >= upgradeKeys.Count)
         {
-            string upgradeKey = upgradeKeys[upgradeIndex];
-            var upgrade = numberData.upgrades[upgradeKey];
+            Debug.LogWarning($"NumberView: Invalid upgrade index {upgradeIndex} (valid range: 0-{upgradeKeys.Count - 1})");
+            return;
+        }
+        
+        string upgradeKey = upgradeKeys[upgradeIndex];
+        
+        if (!numberData.upgrades.ContainsKey(upgradeKey))
+        {
+            Debug.LogWarning($"NumberView: Upgrade key '{upgradeKey}' not found");
+            return;
+        }
+        
+        var upgrade = numberData.upgrades[upgradeKey];
+        
+        if (numberData.amount >= upgrade.cost && upgrade.level == 1)
+        {
+            numberData.amount -= upgrade.cost;
+            upgrade.Upgrade();
             
-            if (numberData.amount >= upgrade.cost && upgrade.level == 1)
+            // Special handling for automation upgrades
+            if (upgradeKey == "FirstHalfAutomation" || upgradeKey == "SecondHalfAutomation")
             {
-                numberData.amount -= upgrade.cost;
-                upgrade.Upgrade();
-                
-                // Special handling for automation upgrades
-                if (upgradeKey == "FirstHalfAutomation" || upgradeKey == "SecondHalfAutomation")
-                {
-                    // Automation upgrade just needs to be purchased, enabling is separate
-                }
-                
-                UpdateNumberInfo();
+                // Automation upgrade just needs to be purchased, enabling is separate
+                Debug.Log($"Automation upgrade '{upgradeKey}' purchased for Number {currentNumber}");
             }
+            
+            UpdateNumberInfo();
+        }
+        else if (upgrade.level > 1)
+        {
+            Debug.Log($"Upgrade '{upgradeKey}' already purchased");
+        }
+        else
+        {
+            Debug.Log($"Cannot afford upgrade '{upgradeKey}' - need {upgrade.cost}, have {numberData.amount}");
         }
     }
 }
