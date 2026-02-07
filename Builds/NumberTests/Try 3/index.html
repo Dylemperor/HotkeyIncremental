@@ -1,12 +1,34 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
+      <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+  
+    #unity-container {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+  
+    #unity-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+    </style>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Unity Web Player | Hotkey Incremental</title>
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-    <canvas id="unity-canvas" width=1280 height=620 tabindex="-1" style="width: 1280px; height: 620px; background: #231F20"></canvas>
+    <canvas id="unity-canvas" width=1280 height=620 tabindex="-1" background: #231F20"></canvas>
     <script src="Build/Try 3.loader.js"></script>
     <script>
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
