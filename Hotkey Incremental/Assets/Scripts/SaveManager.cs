@@ -5,9 +5,13 @@ using System.Linq;
 public class SaveManager : MonoBehaviour
 {
     public CurrencyManager currencyManager;
+    public NumberManager numberManager;
+    public AutomationManager automationManager;
+    public NumberPrestigeManager numberPrestigeManager;
 
     private const string SaveKeyPrefix = "Letter_";
     private const string UpgradeKeyPrefix = "Upgrade_";
+    private const string NumberKeyPrefix = "Number_";
 
     public void SaveGame()
     {
@@ -26,12 +30,55 @@ public class SaveManager : MonoBehaviour
                 PlayerPrefs.SetString(key, $"{pair.Value.amount}|{(pair.Value.isUnlocked ? 1 : 0)}|{upgradeData}");
             }
 
+            // Save Number data
+            SaveNumberData();
+            
             PlayerPrefs.Save();
             Debug.Log("Game Saved successfully");
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Error saving game: {e.Message}");
+        }
+    }
+    
+    private void SaveNumberData()
+    {
+        if (numberManager == null) return;
+        
+        try
+        {
+            // Save Number currencies and upgrades
+            for (int i = 1; i <= 9; i++)
+            {
+                if (numberManager.allNumbers.ContainsKey(i))
+                {
+                    var numData = numberManager.allNumbers[i];
+                    string key = NumberKeyPrefix + i;
+                    string upgradeData = SerializeUpgrades(numData.upgrades);
+                    PlayerPrefs.SetString(key, $"{numData.amount}|{(numData.isUnlocked ? 1 : 0)}|{upgradeData}");
+                }
+            }
+            
+            // Save automation speed
+            PlayerPrefs.SetFloat("Number_AutomationSpeed", (float)numberManager.automationSpeed);
+            PlayerPrefs.SetInt("Number_AutomationSpeedLevel", numberManager.automationSpeedLevel);
+            
+            // Save Number prestige data
+            if (numberPrestigeManager != null)
+            {
+                numberPrestigeManager.SaveNumberPrestigeData();
+            }
+            
+            // Save automation states
+            if (automationManager != null)
+            {
+                automationManager.SaveAutomationData();
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error saving Number data: {e.Message}");
         }
     }
 
@@ -67,11 +114,75 @@ public class SaveManager : MonoBehaviour
                 }
             }
 
+            // Load Number data
+            LoadNumberData();
+            
             Debug.Log("Game Loaded successfully");
         }
         catch (System.Exception e)
         {
             Debug.LogError($"Error loading game: {e.Message}");
+        }
+    }
+    
+    private void LoadNumberData()
+    {
+        if (numberManager == null) return;
+        
+        try
+        {
+            // Load Number currencies and upgrades
+            for (int i = 1; i <= 9; i++)
+            {
+                if (numberManager.allNumbers.ContainsKey(i))
+                {
+                    string key = NumberKeyPrefix + i;
+                    if (PlayerPrefs.HasKey(key))
+                    {
+                        string[] parts = PlayerPrefs.GetString(key).Split('|');
+                        if (parts.Length >= 2)
+                        {
+                            var numData = numberManager.allNumbers[i];
+                            if (double.TryParse(parts[0], out double amount))
+                                numData.amount = amount;
+                                
+                            numData.isUnlocked = parts[1] == "1";
+                            
+                            // Load upgrade data if available
+                            if (parts.Length >= 3)
+                            {
+                                DeserializeUpgrades(numData.upgrades, parts[2]);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Load automation speed
+            if (PlayerPrefs.HasKey("Number_AutomationSpeed"))
+            {
+                numberManager.automationSpeed = PlayerPrefs.GetFloat("Number_AutomationSpeed", 30.0f);
+            }
+            if (PlayerPrefs.HasKey("Number_AutomationSpeedLevel"))
+            {
+                numberManager.automationSpeedLevel = PlayerPrefs.GetInt("Number_AutomationSpeedLevel", 0);
+            }
+            
+            // Load Number prestige data
+            if (numberPrestigeManager != null)
+            {
+                numberPrestigeManager.LoadNumberPrestigeData();
+            }
+            
+            // Load automation states
+            if (automationManager != null)
+            {
+                automationManager.LoadAutomationData();
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error loading Number data: {e.Message}");
         }
     }
 

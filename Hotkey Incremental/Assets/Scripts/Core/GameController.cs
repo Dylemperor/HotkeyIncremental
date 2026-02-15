@@ -155,6 +155,27 @@ public class GameController : MonoBehaviour
             prestigeManager.ResetAllPrestigeData();
         }
         
+        // Reset Number prestige data
+        var numberPrestigeManager = FindFirstObjectByType<NumberPrestigeManager>();
+        if (numberPrestigeManager != null)
+        {
+            numberPrestigeManager.ResetAllNumberPrestigeData();
+        }
+        
+        // Reset Number data
+        var numberManager = FindFirstObjectByType<NumberManager>();
+        if (numberManager != null)
+        {
+            numberManager.ResetAllNumbers();
+        }
+        
+        // Reset automation data
+        var automationManager = FindFirstObjectByType<AutomationManager>();
+        if (automationManager != null)
+        {
+            automationManager.ResetAutomationData();
+        }
+        
         #if UNITY_WEBGL && !UNITY_EDITOR
         if (webSaveManager != null)
         {

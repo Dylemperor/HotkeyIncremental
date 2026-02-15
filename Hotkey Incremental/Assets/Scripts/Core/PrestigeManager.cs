@@ -62,14 +62,18 @@ public class PrestigeManager : MonoBehaviour
         if (letterToPlate == null)
             return;
         
+        // Save current plating status before reset
+        var savedPlating = new Dictionary<string, (bool isSilver, bool isGold, double multiplier)>();
+        foreach (var pair in currencyManager.allLetters)
+        {
+            savedPlating[pair.Key] = (pair.Value.isSilver, pair.Value.isGold, pair.Value.prestigeMultiplier);
+        }
+        
         // Reset all letter currencies to 0 (including A)
         ResetAllCurrencies();
         
         // Reset all upgrades for all letters
         ResetAllUpgrades();
-        
-        // Reset ALL prestige multipliers to 1.0 first (clear any previous plating)
-        ResetAllPrestigeMultipliers();
         
         // Lock all letters except 'A'
         LockAllLettersExceptA();
@@ -80,10 +84,29 @@ public class PrestigeManager : MonoBehaviour
             currencyManager.allLetters["A"].amount = 0;
         }
         
-        // Apply silver plating to the next letter
+        // Restore all previously plated letters' multipliers
+        foreach (var pair in savedPlating)
+        {
+            var existingLetterData = currencyManager.allLetters[pair.Key];
+            if (pair.Value.isGold)
+            {
+                existingLetterData.isGold = true;
+                existingLetterData.isSilver = false;
+                existingLetterData.prestigeMultiplier = goldMultiplier;
+            }
+            else if (pair.Value.isSilver)
+            {
+                existingLetterData.isSilver = true;
+                existingLetterData.isGold = false;
+                existingLetterData.prestigeMultiplier = silverMultiplier;
+            }
+        }
+        
+        // Apply silver plating to the next letter (will override if already set above, but that's fine)
         var letterData = currencyManager.allLetters[letterToPlate];
         letterData.isSilver = true;
-        letterData.prestigeMultiplier = silverMultiplier; // Set to silver multiplier (not multiply)
+        letterData.isGold = false; // Silver takes precedence over gold only for this new letter
+        letterData.prestigeMultiplier = silverMultiplier;
         silverPlatedCount++;
         
         // Update UI AFTER applying plating so colors are correct
@@ -158,14 +181,18 @@ public class PrestigeManager : MonoBehaviour
         if (letterToPlate == null)
             return;
         
+        // Save current plating status before reset
+        var savedPlating = new Dictionary<string, (bool isSilver, bool isGold, double multiplier)>();
+        foreach (var pair in currencyManager.allLetters)
+        {
+            savedPlating[pair.Key] = (pair.Value.isSilver, pair.Value.isGold, pair.Value.prestigeMultiplier);
+        }
+        
         // Reset all letter currencies to 0 (including A)
         ResetAllCurrencies();
         
         // Reset all upgrades for all letters
         ResetAllUpgrades();
-        
-        // Reset ALL prestige multipliers to 1.0 first (clear any previous plating)
-        ResetAllPrestigeMultipliers();
         
         // Lock all letters except 'A'
         LockAllLettersExceptA();
@@ -173,16 +200,34 @@ public class PrestigeManager : MonoBehaviour
         // Ensure letter A amount is 0 after reset
         if (currencyManager.allLetters.ContainsKey("A"))
         {
-            currencyManager.allLetters["A"].amount = 0;
+            currencyManager.allLetters["A"].amount = 100000000000000000;
         }
         
-        // Apply gold plating to the next letter (overrides silver)
-        var letterData = currencyManager.allLetters[letterToPlate];
+        // Restore all previously plated letters' multipliers
+        // Gold plates are preserved, silver plates that aren't being converted stay silver
+        foreach (var pair in savedPlating)
+        {
+            var existingLetterData = currencyManager.allLetters[pair.Key];
+            if (pair.Value.isGold)
+            {
+                existingLetterData.isGold = true;
+                existingLetterData.isSilver = false;
+                existingLetterData.prestigeMultiplier = goldMultiplier;
+            }
+            else if (pair.Value.isSilver && pair.Key != letterToPlate)
+            {
+                // Keep silver plating for letters not being converted to gold
+                existingLetterData.isSilver = true;
+                existingLetterData.isGold = false;
+                existingLetterData.prestigeMultiplier = silverMultiplier;
+            }
+        }
         
+        // Apply gold plating to the next letter (converts silver to gold)
+        var letterData = currencyManager.allLetters[letterToPlate];
         letterData.isSilver = false; // Gold replaces silver
         letterData.isGold = true;
-        letterData.prestigeMultiplier = goldMultiplier; // Set to gold multiplier directly
-        
+        letterData.prestigeMultiplier = goldMultiplier;
         goldPlatedCount++;
         
         // Update UI AFTER applying plating so colors are correct

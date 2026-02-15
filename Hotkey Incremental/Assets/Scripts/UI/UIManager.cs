@@ -4,52 +4,74 @@ public class UIManager : MonoBehaviour
 {
     public GameObject mainView;
     public GameObject letterPage;
-    public GameObject titleScreen;
+    public GameObject numberPage;
+    public GameObject automationPage;
     public GameObject infoView;
     public GameObject settingsView;
 
+    private void Awake()
+    {
+        // Ensure main view is shown by default on startup
+        ShowMainView();
+    }
+
     public void ShowMainView()
     {
-        mainView.SetActive(true);
-        letterPage.SetActive(false);
-        titleScreen.SetActive(false);
-        infoView.SetActive(false);
-        settingsView.SetActive(false);
+        if (mainView != null) mainView.SetActive(true);
+        if (letterPage != null) letterPage.SetActive(false);
+        if (numberPage != null) numberPage.SetActive(false);
+        if (automationPage != null) automationPage.SetActive(false);
+        if (infoView != null) infoView.SetActive(false);
+        if (settingsView != null) settingsView.SetActive(false);
     }
 
     public void ShowLetterPage()
     {
-        mainView.SetActive(false);
-        letterPage.SetActive(true);
-        titleScreen.SetActive(false);
-        infoView.SetActive(false);
-        settingsView.SetActive(false);
+        if (mainView != null) mainView.SetActive(false);
+        if (letterPage != null) letterPage.SetActive(true);
+        if (numberPage != null) numberPage.SetActive(false);
+        if (automationPage != null) automationPage.SetActive(false);
+        if (infoView != null) infoView.SetActive(false);
+        if (settingsView != null) settingsView.SetActive(false);
     }
-
-    public void ShowTitleScreen()
+    
+    public void ShowNumberPage()
     {
-        mainView.SetActive(false);
-        letterPage.SetActive(false);
-        titleScreen.SetActive(true);
-        infoView.SetActive(false);
-        settingsView.SetActive(false);
+        if (mainView != null) mainView.SetActive(false);
+        if (letterPage != null) letterPage.SetActive(false);
+        if (numberPage != null) numberPage.SetActive(true);
+        if (automationPage != null) automationPage.SetActive(false);
+        if (infoView != null) infoView.SetActive(false);
+        if (settingsView != null) settingsView.SetActive(false);
+    }
+    
+    public void ShowAutomationPage()
+    {
+        if (mainView != null) mainView.SetActive(false);
+        if (letterPage != null) letterPage.SetActive(false);
+        if (numberPage != null) numberPage.SetActive(false);
+        if (automationPage != null) automationPage.SetActive(true);
+        if (infoView != null) infoView.SetActive(false);
+        if (settingsView != null) settingsView.SetActive(false);
     }
     
     public void ShowInfoView()
     {
-        mainView.SetActive(false);
-        letterPage.SetActive(false);
-        titleScreen.SetActive(false);
-        infoView.SetActive(true);
-        settingsView.SetActive(false);
+        if (mainView != null) mainView.SetActive(false);
+        if (letterPage != null) letterPage.SetActive(false);
+        if (numberPage != null) numberPage.SetActive(false);
+        if (automationPage != null) automationPage.SetActive(false);
+        if (infoView != null) infoView.SetActive(true);
+        if (settingsView != null) settingsView.SetActive(false);
     }
     
     public void ShowSettingsView()
     {
-        mainView.SetActive(false);
-        letterPage.SetActive(false);
-        titleScreen.SetActive(false);
-        infoView.SetActive(false);
-        settingsView.SetActive(true);
+        if (mainView != null) mainView.SetActive(false);
+        if (letterPage != null) letterPage.SetActive(false);
+        if (numberPage != null) numberPage.SetActive(false);
+        if (automationPage != null) automationPage.SetActive(false);
+        if (infoView != null) infoView.SetActive(false);
+        if (settingsView != null) settingsView.SetActive(true);
     }
 }

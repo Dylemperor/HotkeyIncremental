@@ -5,10 +5,37 @@ using System;
 public class ProductionManager : MonoBehaviour
 {
     public CurrencyManager currencyManager;
+    public NumberManager numberManager;
     public float productionInterval = 0.1f; // How often to calculate production
     
     private DateTime lastUpdateTime;
     private bool isFirstUpdate = true;
+    
+    // Keyboard row definitions
+    private static readonly string[] TopRowLetters = { "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P" };
+    private static readonly string[] MiddleRowLetters = { "A", "S", "D", "F", "G", "H", "J", "K", "L" };
+    private static readonly string[] BottomRowLetters = { "Z", "X", "C", "V", "B", "N", "M" };
+    
+    // Get keyboard row for a letter
+    public static string GetKeyboardRow(string letter)
+    {
+        foreach (string l in TopRowLetters)
+        {
+            if (l == letter)
+                return "Top";
+        }
+        foreach (string l in MiddleRowLetters)
+        {
+            if (l == letter)
+                return "Middle";
+        }
+        foreach (string l in BottomRowLetters)
+        {
+            if (l == letter)
+                return "Bottom";
+        }
+        return "Unknown";
+    }
     
     private void Start()
     {
@@ -92,8 +119,16 @@ public class ProductionManager : MonoBehaviour
         }
         
         // Calculate production: (base + prev_nextBase) * (multiplier + prev_nextMulti) raised to (exponent + prev_nextExponent)
-        double production = Math.Pow(baseProduction * multiplier, exponent)* data.prestigeMultiplier;
+        double production = Math.Pow(baseProduction * multiplier, exponent) * data.prestigeMultiplier;
         
+        // Apply Number multipliers
+        if (numberManager != null)
+        {
+            string row = GetKeyboardRow(letter);
+            double rowMultiplier = numberManager.GetRowMultiplier(row);
+            double globalMultiplier = numberManager.GetGlobalMultiplier();
+            production *= rowMultiplier * globalMultiplier;
+        }
         
         return production;
     }
