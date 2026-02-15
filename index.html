@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
      <style>
       html, body {
         margin: 0;
@@ -23,14 +25,12 @@
         display: block;
     }
     </style>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Hotkey Incremental</title>
-    <link rel="icon" sizes="16x16" href="/favicon.ico">
+    <title>Hotkey Incremental</title>
+    <link rel='icon' href='/favicon.ico' ?>
   </head>
   <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-    <canvas id="unity-canvas" width=1280 height=620 tabindex="-1"  background: #231F20"></canvas>
-    <script src="Build/Release 1.0.loader.js"></script>
+    <canvas id="unity-canvas" width=1280 height=620 tabindex="-1" background: #231F20"></canvas>
+    <script src="Build/Try 6.loader.js"></script>
     <script>
       if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
         // Mobile device style: fill the whole browser client area with the game canvas:
@@ -50,9 +50,9 @@
 
       createUnityInstance(document.querySelector("#unity-canvas"), {
         arguments: [],
-        dataUrl: "Build/Release 1.0.data.unityweb",
-        frameworkUrl: "Build/Release 1.0.framework.js.unityweb",
-        codeUrl: "Build/Release 1.0.wasm.unityweb",
+        dataUrl: "Build/Try 6.data.unityweb",
+        frameworkUrl: "Build/Try 6.framework.js.unityweb",
+        codeUrl: "Build/Try 6.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "DefaultCompany",
         productName: "Hotkey Incremental",

@@ -32,20 +32,20 @@ public class CurrencyData
             ? new double[] { 1.08,  1.125, 1.15, 1.2, 15 } // Original for A
             : new double[] { 1.12, 1.15, 1.2, 1.2, 20 }; // Harsher for B-Z
         
-        upgrades["BaseProduction"] = new UpgradeData("Base Production", 1, 1, 10, 
-            new int[] { 10, 75, 125, 250, 500 }, // Phase thresholds: level 5, level 25, etc.
+        upgrades["BaseProduction"] = new UpgradeData("Base Production", 1, 1, 25, 
+            new int[] { 10, 50, 100, 250, 500, 1000 }, // Phase thresholds: level 5, level 25, etc.
             baseProductionMultipliers, // Multipliers adjusted for letter position
             true, 1.0); // Additive effect, +1 per level
         
         // Multiplier: adds +0.5 to multiplier per level
         double[] multiplierMultipliers = isLetterA
             ? new double[] { 1.15, 1.175, 1.2, 1.35, 2.5, 15 } // Original for A
-            : new double[] { 1.2, 1.25, 1.35, 1.5, 2.5, 20 }; // Harsher for B-Z
+            : new double[] { 1.25, 1.3, 1.4, 1.5, 3.0, 25 }; // Harsher for B-Z
         
         upgrades["Multiplier"] = new UpgradeData("Multiplier", 1, 1, 500, 
-            new int[] { 5, 25, 50, 100, 500, 1000 }, // Phase thresholds
+            new int[] { 10, 25, 50, 100, 500, 1000 }, // Phase thresholds
             multiplierMultipliers, // Multipliers adjusted for letter position
-            true, 0.5); // Additive effect, +0.5 per level 
+            true, 1); // Additive effect, +1 per level 
         
         // Exponent: adds +0.1 to exponent per level
         double[] exponentMultipliers = isLetterA
@@ -78,7 +78,7 @@ public class CurrencyData
             new int[] { 10, 20, 25, 50, 100}, nextBaseMultipliers, true, 1);
         upgrades["nextLetterMulti"] = new UpgradeData(
             "Next Letter Multi", 1, 0, 1000000000000000, 
-            new int[] { 10, 20, 25, 50, 100}, nextMultiMultipliers, true, 0.5);
+            new int[] { 10, 20, 25, 50, 100}, nextMultiMultipliers, true, 1);
         upgrades["nextLetterExponent"] = new UpgradeData(
             "Next Letter Exponent", 1, 0, 1000000000000000000, 
             new int[] { 10, 20, 25, 50}, nextExpMultipliers, true, 0.1);
