@@ -40,7 +40,7 @@ public class CurrencyData
         // Multiplier: adds +1 to multiplier per level
         double[] multiplierMultipliers = isLetterA
             ? new double[] { 1.15, 1.175, 1.2, 1.35, 2.5, 15 } // Original for A
-            : new double[] { 1.25, 1.3, 1.4, 1.5, 3.0, 25 }; // Harsher for B-Z
+            : new double[] { 1.2, 1.3, 1.4, 1.5, 3.0, 25 }; // Harsher for B-Z
         
         upgrades["Multiplier"] = new UpgradeData("Multiplier", 1, 1, 500, 
             new int[] { 10, 25, 50, 100, 500, 1000 }, // Phase thresholds
@@ -50,7 +50,7 @@ public class CurrencyData
         // Exponent: adds +0.1 to exponent per level
         double[] exponentMultipliers = isLetterA
             ? new double[] { 2.4, 2.75, 3, 3.5, 5, 50 } // Original for A
-            : new double[] { 2.6, 3, 3.25, 4, 5.25, 60 }; // Harsher for B-Z
+            : new double[] { 2.5, 2.9, 3.25, 4, 5.25, 60 }; // Harsher for B-Z
         
         upgrades["Exponent"] = new UpgradeData(
             "Exponent", 1, 1, 10000, 
