@@ -373,31 +373,118 @@ public class WebSaveManager : MonoBehaviour
         }
     }
 
-    // Export save data as JSON string (for backup/transfer)
+    // Export Save Data using SaveDataWrapper for JSON serialization
     public string ExportSaveData()
     {
         if (currencyManager == null) return "";
 
-        var saveData = new Dictionary<string, object>();
+        var wrapper = new SaveDataWrapper();
+        wrapper.saveVersion = CurrentSaveVersion;
+
+        // Letters
         foreach (var pair in currencyManager.allLetters)
         {
-            var letterData = new Dictionary<string, object>
+            var letterData = new LetterSaveData();
+            letterData.letter = pair.Key;
+            letterData.amount = pair.Value.amount;
+            letterData.isUnlocked = pair.Value.isUnlocked;
+            
+            foreach (var upgradePair in pair.Value.upgrades)
             {
-                { "amount", pair.Value.amount },
-                { "isUnlocked", pair.Value.isUnlocked },
-                { "upgrades", SerializeUpgrades(pair.Value.upgrades) }
-            };
-            saveData[pair.Key] = letterData;
+                var upgradeData = new UpgradeSaveData();
+                upgradeData.id = upgradePair.Key;
+                upgradeData.level = upgradePair.Value.level;
+                upgradeData.effect = upgradePair.Value.effect;
+                upgradeData.cost = upgradePair.Value.cost;
+                letterData.upgrades.Add(upgradeData);
+            }
+            wrapper.letters.Add(letterData);
         }
 
-        return JsonUtility.ToJson(saveData);
+        // Numbers
+        if (numberManager != null)
+        {
+            foreach (var pair in numberManager.allNumbers)
+            {
+                var numberData = new NumberSaveData();
+                numberData.number = pair.Key;
+                numberData.amount = pair.Value.amount;
+                numberData.isUnlocked = pair.Value.isUnlocked;
+
+                foreach (var upgradePair in pair.Value.upgrades)
+                {
+                    var upgradeData = new UpgradeSaveData();
+                    upgradeData.id = upgradePair.Key;
+                    upgradeData.level = upgradePair.Value.level;
+                    upgradeData.effect = upgradePair.Value.effect;
+                    upgradeData.cost = upgradePair.Value.cost;
+                    numberData.upgrades.Add(upgradeData);
+                }
+                wrapper.numbers.Add(numberData);
+            }
+            wrapper.automationSpeed = numberManager.automationSpeed;
+            wrapper.automationSpeedLevel = numberManager.automationSpeedLevel;
+        }
+
+        return JsonUtility.ToJson(wrapper);
     }
 
-    // Import save data from JSON string
+    // Import Save Data from JSON string
     public void ImportSaveData(string jsonData)
     {
-        // Implementation for importing save data
-        // This can be used for save file transfer between devices
+        try
+        {
+            var wrapper = JsonUtility.FromJson<SaveDataWrapper>(jsonData);
+            if (wrapper != null)
+            {
+                // Clear existing save to ensure clean slate
+                ClearLocalStorage();
+
+                // Save Version
+                SaveToLocalStorage(SaveVersionKey, wrapper.saveVersion.ToString());
+
+                // Restore Letters to LocalStorage
+                foreach (var letterData in wrapper.letters)
+                {
+                    string upgradeStr = SerializeUpgradesFromWrapper(letterData.upgrades);
+                    string saveStr = $"{letterData.amount}|{(letterData.isUnlocked ? 1 : 0)}|{upgradeStr}";
+                    string key = SaveKeyPrefix + letterData.letter;
+                    SaveToLocalStorage(key, saveStr);
+                }
+
+                // Restore Numbers to LocalStorage
+                foreach (var numberData in wrapper.numbers)
+                {
+                    string upgradeStr = SerializeUpgradesFromWrapper(numberData.upgrades);
+                    string saveStr = $"{numberData.amount}|{(numberData.isUnlocked ? 1 : 0)}|{upgradeStr}";
+                    string key = NumberKeyPrefix + numberData.number;
+                    SaveToLocalStorage(key, saveStr);
+                }
+
+                // Restore Automation Settings
+                SaveToLocalStorage("HotkeyIncremental_Number_AutomationSpeed", wrapper.automationSpeed.ToString());
+                SaveToLocalStorage("HotkeyIncremental_Number_AutomationSpeedLevel", wrapper.automationSpeedLevel.ToString());
+
+                Debug.Log("Save Data Imported Successfully! Please reload scene.");
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Error importing save data: {e.Message}");
+            throw; // Re-throw to inform caller (SettingsController)
+        }
+    }
+
+    // Helper to format upgrade list back to string format for LocalStorage
+    private string SerializeUpgradesFromWrapper(List<UpgradeSaveData> upgrades)
+    {
+        var upgradeStrings = new List<string>();
+        foreach (var data in upgrades)
+        {
+            // Format: id:level:effect:cost
+            upgradeStrings.Add($"{data.id}:{data.level}:{data.effect}:{data.cost}");
+        }
+        return string.Join(";", upgradeStrings);
     }
 }
 

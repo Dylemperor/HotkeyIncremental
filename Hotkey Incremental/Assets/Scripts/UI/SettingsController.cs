@@ -315,20 +315,19 @@ public class SettingsController : MonoBehaviour
             // Try WebSaveManager first
             if (webSaveManager != null)
             {
-                var method = webSaveManager.GetType().GetMethod("ImportSaveData");
-                if (method != null)
-                {
-                    method.Invoke(webSaveManager, new object[] { saveData });
-                    Debug.Log("Save data imported via WebSaveManager");
-                }
+                // We can call directly as we know the method exists now
+                webSaveManager.ImportSaveData(saveData);
+                Debug.Log("Save data imported via WebSaveManager");
+                
+                // RELOAD SCENE to ensure all managers (Currency, Number, etc.) re-initialize with the new data
+                // This ensures unlocked letters/numbers are properly displayed
+                UnityEngine.SceneManagement.SceneManager.LoadScene(
+                    UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
+                );
             }
-            
-            // Note: Full import implementation would need to parse JSON and restore game state
-            // This is a placeholder - you may want to implement full import logic
-            
-            if (exportSaveText != null)
+            else
             {
-                exportSaveText.text = "Save data imported! (Reload may be required)";
+                 if (exportSaveText != null) exportSaveText.text = "Error: WebSaveManager not found";
             }
         }
         catch (Exception e)
