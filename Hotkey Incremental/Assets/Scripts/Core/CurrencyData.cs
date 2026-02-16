@@ -33,11 +33,11 @@ public class CurrencyData
             : new double[] { 1.12, 1.15, 1.2, 1.2, 20 }; // Harsher for B-Z
         
         upgrades["BaseProduction"] = new UpgradeData("Base Production", 1, 1, 25, 
-            new int[] { 10, 50, 100, 250, 500, 1000 }, // Phase thresholds: level 5, level 25, etc.
-            baseProductionMultipliers, // Multipliers adjusted for letter position
-            true, 1.0); // Additive effect, +1 per level
+            new int[] { 10, 50, 100, 250, 500, 1000 }, 
+            baseProductionMultipliers, 
+            true, 1.0); 
         
-        // Multiplier: adds +0.5 to multiplier per level
+        // Multiplier: adds +1 to multiplier per level
         double[] multiplierMultipliers = isLetterA
             ? new double[] { 1.15, 1.175, 1.2, 1.35, 2.5, 15 } // Original for A
             : new double[] { 1.25, 1.3, 1.4, 1.5, 3.0, 25 }; // Harsher for B-Z
@@ -55,10 +55,10 @@ public class CurrencyData
         upgrades["Exponent"] = new UpgradeData(
             "Exponent", 1, 1, 10000, 
             new int[] { 5, 10, 20 , 50, 100, 200}, 
-            exponentMultipliers, // Multipliers adjusted for letter position
-            true, 0.1); // Additive effect, +0.1 per level
+            exponentMultipliers, 
+            true, 0.1); 
         
-        // Next-letter upgrades keep canonical keys; names are pretty for UI
+        // Next-letter upgrades
         // Start with effect = 0 so first purchase adds the increment (not 1 + increment)
         // Next-letter upgrades also scale harsher after A
         double[] nextBaseMultipliers = isLetterA

@@ -122,7 +122,7 @@ public class LetterPageController : MonoBehaviour
         unlockNextLetterButton.colors = colors;
     }
     
-    private bool CanUnlockNextLetter()
+    public bool CanUnlockNextLetter()
     {
         if (!currencyManager.allLetters.ContainsKey(currentLetter))
             return false;

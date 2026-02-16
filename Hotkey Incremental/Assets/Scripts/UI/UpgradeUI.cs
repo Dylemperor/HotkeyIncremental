@@ -318,6 +318,36 @@ public class UpgradeUI : MonoBehaviour
         }
             
         var currencyData = currencyManager.allLetters[letter];
+
+        // 1. Attempt to Unlock Next Letter FIRST (User Request)
+        // This requires access to LetterPageController or similar logic, but we can check affordability directly.
+        // However, unlocking is usually handled by LetterPageController UI interaction.
+        // To support "Max All" triggering unlock, we need to find the controller.
+        var letterPageController = Object.FindFirstObjectByType<LetterPageController>();
+        if (letterPageController != null)
+        {
+            // Check threshold (1B)
+            double unlockThreshold = 1000000000; // 1 Billion
+            if (currencyData.amount >= unlockThreshold)
+            {
+               // Check if next letter exists and is locked
+               if (letterPageController.CanUnlockNextLetter())
+               {
+                   letterPageController.UnlockNextLetter();
+                   Debug.Log($"Max All: Unlocked next letter for {letter}");
+                   // Refresh UI immediately as context changed
+                   refreshUI = true;
+                   // Currency amount has reduced (probably?) - actually unlock cost is usually 0, threshold is just a gate.
+                   // But if it had a cost, we'd need to deduct it. Logic in LetterPageController doesn't deduct, usually.
+                   // The threshold is 1B but it doesn't say it consumes it.
+                   // Wait, checking `LetterPageController.cs`: `if (data.amount < UNLOCK_CURRENCY_THRESHOLD) return false;`
+                   // `UnlockNextLetter` calls `currencyManager.UnlockNextLetter`.
+                   // `CurrencyManager.UnlockNextLetter` sets unlocked = true.
+                   // Neither subtracts currency. So it's safe to proceed with upgrades after unlocking!
+               }
+            }
+        }
+
         bool purchasedAny = false;
         int totalPurchased = 0;
         
