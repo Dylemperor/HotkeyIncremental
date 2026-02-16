@@ -7,7 +7,7 @@ public class SaveDataWrapper
     public int saveVersion = 1;
     public List<LetterSaveData> letters = new List<LetterSaveData>();
     public List<NumberSaveData> numbers = new List<NumberSaveData>();
-    public float automationSpeed;
+    public double automationSpeed;
     public int automationSpeedLevel;
     // Add time or other metadata if needed
 }
